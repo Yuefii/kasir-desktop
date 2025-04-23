@@ -2,8 +2,14 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { startExpress } from '../server'
+
+let expressServer: ReturnType<typeof startExpress> | null = null
 
 function createWindow(): void {
+  if (!expressServer) {
+    expressServer = startExpress()
+  }
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -65,6 +71,9 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  if (expressServer) {
+    expressServer.close()
+  }
   if (process.platform !== 'darwin') {
     app.quit()
   }
