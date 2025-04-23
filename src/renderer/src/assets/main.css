@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  overflow: hidden;
+  user-select: none;
+}
+
+@media (max-width: 720px) {
+  .text {
+    font-size: 20px;
+  }
+
+  @media (max-width: 620px) {
+    .versions {
+      display: none;
+    }
+  }
+
+  @media (max-width: 350px) {
+    .tip,
+    .actions {
+      display: none;
+    }
+  }
+}

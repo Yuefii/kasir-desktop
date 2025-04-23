@@ -1,0 +1,104 @@
+import React, { ReactElement, useState } from 'react'
+import { Link } from 'react-router-dom'
+
+interface MenuItem {
+  name: string
+  href?: string
+  shortcut?: string
+  type?: string
+}
+
+interface Menu {
+  name: string
+  items: MenuItem[]
+}
+
+const MenuBar = (): ReactElement => {
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+
+  const menus: Menu[] = [
+    {
+      name: 'Data Master',
+      items: [
+        { name: 'Produk', href: '/produk', shortcut: 'Alt+1' },
+        { name: 'Kategori', href: '/kategori', shortcut: 'Alt+2' },
+        { name: 'Operator', href: '/pegawai', shortcut: 'Alt+3' },
+        { name: 'Cabang', href: '/cabang', shortcut: 'Alt+4' }
+      ]
+    },
+    {
+      name: 'Stok Barang',
+      items: [
+        { name: 'Entri Stok', href: '/entri-stok', shortcut: 'Alt+5' },
+        { name: 'Daftar Stok', href: '/daftar-stok', shortcut: 'Alt+6' }
+      ]
+    },
+    {
+      name: 'Data Pesanan',
+      items: [{ name: 'Semua Pesanan' }, { name: 'Pesanan Tunai' }, { name: 'Pesanan Non-Tunai' }]
+    },
+    {
+      name: 'Akutansi',
+      items: [{ name: 'Buku Besar' }, { name: 'Transaksi Keuangan' }, { name: 'Cash Flow' }]
+    },
+    {
+      name: 'Laporan',
+      items: [
+        { name: 'Semua Transaksi Penjualan' },
+        { name: 'Riwayat Transaksi Per Produk' },
+        { name: 'Laporan Cash Flow' }
+      ]
+    }
+  ]
+
+  const handleMenuClick = (menuName: string): void => {
+    setActiveMenu(activeMenu === menuName ? null : menuName)
+  }
+
+  const handleBlur = (): void => {
+    setTimeout(() => {
+      setActiveMenu(null)
+    }, 200)
+  }
+
+  return (
+    <div className="max-w-full bg-black text-sm select-none">
+      <div className="flex items-center h-8">
+        {menus.map((menu) => (
+          <div key={menu.name} className="relative" onBlur={handleBlur} tabIndex={0}>
+            <button
+              className={`px-3 text-white h-full hover:bg-gray-100 hover:text-black ${activeMenu === menu.name ? 'bg-gray-100 text-black' : ''}`}
+              onClick={() => handleMenuClick(menu.name)}
+            >
+              {menu.name}
+            </button>
+
+            {activeMenu === menu.name && (
+              <div className="absolute left-1 p-1.5 top-7 bg-white shadow-lg border border-gray-300 z-10 min-w-[250px]">
+                {menu.items.map((item, index) => (
+                  <React.Fragment key={index}>
+                    {item.type === 'divider' ? (
+                      <div className="border-t border-gray-200 my-1"></div>
+                    ) : (
+                      <Link
+                        to={item.href || '#'}
+                        className="px-3 py-1 hover:bg-black hover:text-white flex justify-between items-center"
+                      >
+                        <span>{item.name}</span>
+                        {item.shortcut && (
+                          <span className="text-xs text-gray-500 ml-8">{item.shortcut}</span>
+                        )}
+                      </Link>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default MenuBar
