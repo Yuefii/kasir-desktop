@@ -4,16 +4,21 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { startExpress } from '../server'
 
+import { isConnectedToInternet } from '../server/utils/check_connection'
+import { tryConnectMySQL, switchToOffline, getMode } from '../server/database/conn'
+
 let expressServer: ReturnType<typeof startExpress> | null = null
+let intervalId: NodeJS.Timeout | null = null
 
 function createWindow(): void {
   if (!expressServer) {
     expressServer = startExpress()
+    startAutoSwitchInterval()
   }
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1280,
+    height: 720,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -39,6 +44,29 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+}
+
+async function checkConnection(): Promise<void> {
+  const online = await isConnectedToInternet()
+
+  if (online) {
+    console.log('[CHECK] Internet connected. Trying MySQL...')
+    await tryConnectMySQL()
+  } else {
+    console.log('[CHECK] No internet. Switching to OFFLINE...')
+    await switchToOffline()
+  }
+
+  console.log(`[MODE] Current mode: ${getMode()}`)
+}
+
+function startAutoSwitchInterval(): void {
+  console.log('[INIT] Starting auto network check interval...')
+  checkConnection()
+
+  intervalId = setInterval(async () => {
+    await checkConnection()
+  }, 5000)
 }
 
 // This method will be called when Electron has finished
@@ -71,6 +99,7 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  if (intervalId) clearInterval(intervalId)
   if (expressServer) {
     expressServer.close()
   }
