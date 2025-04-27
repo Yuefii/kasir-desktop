@@ -5,11 +5,28 @@ import { getMode } from '../database/conn'
 import { CabangModelFactory } from '../model/factory/cabang_factory.model'
 
 export class CabangController {
-  static async getAll(_req: Request, res: Response) {
+  static async getAll(req: Request, res: Response) {
     try {
       const Cabang = await CabangModelFactory()
-      const data = await Cabang.findAll({ where: { is_aktif: true } })
-      res.status(200).json({ data: data })
+
+      const halaman = parseInt(req.query.halaman as string) || 1
+      const limit = parseInt(req.query.limit as string) || 5
+      const offset = (halaman - 1) * limit
+
+      const { count, rows } = await Cabang.findAndCountAll({
+        where: { is_aktif: true },
+        limit,
+        offset
+      })
+      res.status(200).json({
+        pagination: {
+          total_data: count,
+          halaman_sekarang: halaman,
+          data_per_halaman: limit,
+          total_halaman: Math.ceil(count / limit)
+        },
+        data: rows
+      })
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error', error })
     }
