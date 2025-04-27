@@ -1,6 +1,13 @@
+import { getMode } from '../database/conn'
 import { getAllModels } from '../model/helper/all_model'
 
 export async function manualSyncAllTables() {
+  const mode = getMode()
+
+  if (mode === 'offline') {
+    throw new Error('Tidak dapat sinkronisasi saat mode OFFLINE.')
+  }
+
   const { sqliteModels, mysqlModels } = await getAllModels()
   const results: Record<string, number> = {}
 

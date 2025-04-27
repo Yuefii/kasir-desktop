@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useState } from 'react'
 import axios from 'axios'
+import SyncPanel from '@renderer/components/SyncPanel'
 
 const Kasir = (): ReactElement => {
   const [mode, setMode] = useState<string | null>(null)
@@ -49,6 +50,8 @@ const Kasir = (): ReactElement => {
           </h2>
         </div>
       )}
+
+      <SyncPanel />
     </div>
   )
 }
