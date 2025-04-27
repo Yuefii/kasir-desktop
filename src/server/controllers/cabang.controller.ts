@@ -8,7 +8,7 @@ export class CabangController {
   static async getAll(_req: Request, res: Response) {
     try {
       const Cabang = await CabangModelFactory()
-      const data = await Cabang.findAll()
+      const data = await Cabang.findAll({ where: { is_aktif: true } })
       res.status(200).json({ data: data })
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error', error })
@@ -50,6 +50,85 @@ export class CabangController {
     } catch (error) {
       console.error('[CREATE ERROR]', error)
       res.status(500).json({ message: 'Internal Server Error', error })
+    }
+  }
+
+  static async update(req: Request, res: Response) {
+    const { id } = req.params
+    const request: Partial<CabangInterface> = req.body
+
+    try {
+      const { mysql, sqlite } = await getCabangModels()
+      const mode = getMode()
+      const [sqliteUpdated] = await sqlite.update(request, {
+        where: { id }
+      })
+
+      let mysqlUpdated: CabangInstance | null = null
+      if (mode === 'online' && mysql) {
+        try {
+          const [affectedCount] = await mysql.update(
+            { ...request, isSynced: true },
+            { where: { id } }
+          )
+          mysqlUpdated =
+            affectedCount > 0 ? ((await mysql.findByPk(id)) as CabangInstance | null) : null
+        } catch (error) {
+          console.error('[MYSQL ERROR] gagal untuk update ke mysql:', error)
+        }
+      }
+
+      if (sqliteUpdated === 0) {
+        res.status(404).json({ message: 'cabang tidak ditemukan' })
+      }
+
+      res.status(200).json({
+        message: 'cabang berhasil diupdate',
+        updated_in_mysql: mysqlUpdated,
+        update_in_sqlite: sqliteUpdated
+      })
+    } catch (error) {
+      console.error('[UPDATE ERROR]', error)
+      res.status(500).json({ messagae: 'internal server error', error })
+    }
+  }
+
+  static async softDelete(req: Request, res: Response) {
+    const { id } = req.params
+
+    try {
+      const { mysql, sqlite } = await getCabangModels()
+      const mode = getMode()
+
+      const [sqliteUpdated] = await sqlite.update({ is_aktif: false }, { where: { id } })
+
+      let mysqlUpdated: CabangInstance | null = null
+
+      if (mode === 'online' && mysql) {
+        try {
+          const [affectedCount] = await mysql.update(
+            { is_aktif: false, isSynced: true },
+            { where: { id } }
+          )
+          mysqlUpdated =
+            affectedCount > 0 ? ((await mysql.findByPk(id)) as CabangInstance | null) : null
+        } catch (error) {
+          console.error('[MYSQL ERROR] gagal update ke mysql:', error)
+        }
+      }
+
+      if (sqliteUpdated === 0) {
+        res.status(400).json({ message: 'cabang tidak ditemukan' })
+      }
+
+      res.status(200).json({
+        message: 'cabang berhasil dinonaktifkan (soft delete)',
+        update_in_mysql: mysqlUpdated,
+        update_in_sqlite: sqliteUpdated
+      })
+    } catch (error) {
+      console.error('[SOFT DELETE ERROR]', error)
+      res.status(500).json({ message: 'internal server error', error })
     }
   }
 }
