@@ -98,10 +98,13 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   if (intervalId) clearInterval(intervalId)
   if (expressServer) {
-    expressServer.close()
+    if (expressServer) {
+      const server = await expressServer
+      server.close()
+    }
   }
   if (process.platform !== 'darwin') {
     app.quit()
