@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 
 interface SyncStatus {
-  status: 'synced' | 'unsynced'
+  status: 'sinkron' | 'tidak sinkron'
   tables: Record<string, number>
 }
 
@@ -12,7 +12,7 @@ export default function SyncPanel() {
   const [syncResult, setSyncResult] = useState<Record<string, number> | null>(null)
 
   const fetchStatus = async () => {
-    const res = await axios.get('http://localhost:3001/sync/status')
+    const res = await axios.get('http://localhost:3001/api/sync/status')
     setStatus(res.data)
   }
 
@@ -20,7 +20,7 @@ export default function SyncPanel() {
     setLoading(true)
     setSyncResult(null)
     try {
-      const res = await axios.post('http://localhost:3001/sync/manual')
+      const res = await axios.post('http://localhost:3001/api/sync/manual')
       setSyncResult(res.data.result)
       await fetchStatus()
     } catch (err) {
@@ -42,11 +42,11 @@ export default function SyncPanel() {
       {status ? (
         <div className="mb-4">
           <p
-            className={`text-sm font-medium ${status.status === 'synced' ? 'text-green-600' : 'text-red-600'}`}
+            className={`text-sm font-medium ${status.status === 'sinkron' ? 'text-green-600' : 'text-red-600'}`}
           >
             Status: {status.status.toUpperCase()}
           </p>
-          {status.status === 'unsynced' && (
+          {status.status === 'tidak sinkron' && (
             <ul className="list-disc list-inside mt-2">
               {Object.entries(status.tables).map(([table, count]) => (
                 <li key={table}>
@@ -60,7 +60,7 @@ export default function SyncPanel() {
         <p>Memuat status...</p>
       )}
 
-      {status?.status === 'unsynced' && (
+      {status?.status === 'tidak sinkron' && (
         <button
           onClick={syncNow}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
