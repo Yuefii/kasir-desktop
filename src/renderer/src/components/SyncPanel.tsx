@@ -46,7 +46,7 @@ export default function SyncPanel() {
           >
             Status: {status.status.toUpperCase()}
           </p>
-          {status.status === 'tidak sinkron' && (
+          {status.status === 'tidak sinkron' && status.tables && (
             <ul className="list-disc list-inside mt-2">
               {Object.entries(status.tables).map(([table, count]) => (
                 <li key={table}>
@@ -63,7 +63,7 @@ export default function SyncPanel() {
       {status?.status === 'tidak sinkron' && (
         <button
           onClick={syncNow}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          className="bg-black text-sm text-white px-4 py-2 rounded hover:bg-opacity-80"
           disabled={loading}
         >
           {loading ? 'Menyinkronkan...' : 'Sinkronisasi Sekarang'}
