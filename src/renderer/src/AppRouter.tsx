@@ -4,8 +4,6 @@ import Kasir from './views/Kasir'
 import Category from './views/Kategori'
 import User from './views/User'
 import Cabang from './views/Cabang'
-import EntriStock from './views/EntriStock'
-import RegisterStock from './views/RegisterStock'
 import Produk from './views/Produk'
 import Inventori from './views/Inventori'
 
@@ -20,9 +18,7 @@ const routes = [
       { path: 'kategori', element: <Category /> },
       { path: 'pegawai', element: <User /> },
       { path: 'cabang', element: <Cabang /> },
-      { path: 'inventori', element: <Inventori /> },
-      { path: 'entri-stok', element: <EntriStock /> },
-      { path: 'daftar-stok', element: <RegisterStock /> }
+      { path: 'inventori', element: <Inventori /> }
     ]
   }
 ]

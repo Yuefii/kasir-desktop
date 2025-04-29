@@ -16,6 +16,9 @@ export class InventoriController {
       const { count, rows } = await Inventori.Inventori.findAndCountAll({
         limit,
         offset,
+        where: {
+          is_aktif: true
+        },
         attributes: {
           exclude: ['id_produk', 'id_cabang']
         },
@@ -46,6 +49,7 @@ export class InventoriController {
 
   static async create(req: Request, res: Response) {
     const request: InventoriInterface = req.body
+    request.jumlah_stok = 0
     request.created_at = new Date()
     request.updated_at = new Date()
     request.isSynced = false
@@ -154,36 +158,41 @@ export class InventoriController {
     }
   }
 
-  static async delete(req: Request, res: Response) {
+  static async softDelete(req: Request, res: Response) {
     const { id } = req.params
 
     try {
       const { mysql, sqlite } = await getInventoriModels()
       const mode = getMode()
 
-      const sqliteDeleted = await sqlite.destroy({ where: { id } })
+      const [sqliteUpdated] = await sqlite.update({ is_aktif: false }, { where: { id } })
 
-      let mysqlDeleted: number = 0
+      let mysqlUpdated: InventoriInstance | null = null
 
       if (mode === 'online' && mysql) {
         try {
-          mysqlDeleted = await mysql.destroy({ where: { id } })
+          const [affectedCount] = await mysql.update(
+            { is_aktif: false, isSynced: true },
+            { where: { id } }
+          )
+          mysqlUpdated =
+            affectedCount > 0 ? ((await mysql.findByPk(id)) as InventoriInstance | null) : null
         } catch (error) {
-          console.error('[MYSQL ERROR] gagal menghapus data dari mysql:', error)
+          console.error('[MYSQL ERROR] gagal update ke mysql:', error)
         }
       }
 
-      if (sqliteDeleted === 0) {
+      if (sqliteUpdated === 0) {
         res.status(400).json({ message: 'inventori tidak ditemukan' })
       }
 
       res.status(200).json({
-        message: 'inventori berhasil dihapus (hard delete)',
-        deleted_from_mysql: mysqlDeleted,
-        deleted_from_sqlite: sqliteDeleted
+        message: 'inventori berhasil dihapus (soft delete)',
+        deleted_from_mysql: mysqlUpdated,
+        deleted_from_sqlite: sqliteUpdated
       })
     } catch (error) {
-      console.error('[HARD DELETE ERROR]', error)
+      console.error('[SOFT DELETE ERROR]', error)
       res.status(500).json({ message: 'internal server error', error })
     }
   }

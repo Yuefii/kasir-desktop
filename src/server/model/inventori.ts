@@ -6,6 +6,7 @@ export interface InventoriInterface {
   stok_minimal: number
   id_produk?: number
   id_cabang?: number
+  is_aktif: boolean
   isSynced?: boolean
   created_at?: Date
   updated_at?: Date
@@ -45,11 +46,19 @@ export const defineInventoriModel = async (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
+      is_aktif: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+      },
       isSynced: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       },
       created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+      },
+      updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
       }

@@ -25,7 +25,7 @@ router.delete('/produk/:id', ProdukController.softDelete)
 router.get('/inventori', InventoriController.getAll)
 router.post('/inventori', InventoriController.create)
 router.patch('/inventori/:id', InventoriController.update)
-router.delete('/inventori/:id', InventoriController.delete)
+router.delete('/inventori/:id', InventoriController.softDelete)
 
 router.get('/sync/status', SyncController.SyncStatus)
 router.post('/sync/manual', SyncController.SyncManual)
