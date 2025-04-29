@@ -2,7 +2,7 @@ import { createHashRouter, createBrowserRouter, RouterProvider } from 'react-rou
 import Layout from './layouts/AppLayout'
 import Kasir from './views/Kasir'
 import Product from './views/Product'
-import Category from './views/Category'
+import Category from './views/Kategori'
 import User from './views/User'
 import Cabang from './views/Cabang'
 import EntriStock from './views/EntriStock'
