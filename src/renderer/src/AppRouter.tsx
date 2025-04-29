@@ -1,12 +1,12 @@
 import { createHashRouter, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from './layouts/AppLayout'
 import Kasir from './views/Kasir'
-import Product from './views/Product'
 import Category from './views/Kategori'
 import User from './views/User'
 import Cabang from './views/Cabang'
 import EntriStock from './views/EntriStock'
 import RegisterStock from './views/RegisterStock'
+import Produk from './views/Produk'
 
 const routes = [
   {
@@ -15,7 +15,7 @@ const routes = [
     errorElement: <div>404 Not Found</div>,
     children: [
       { index: true, element: <Kasir /> },
-      { path: 'produk', element: <Product /> },
+      { path: 'produk', element: <Produk /> },
       { path: 'kategori', element: <Category /> },
       { path: 'pegawai', element: <User /> },
       { path: 'cabang', element: <Cabang /> },
