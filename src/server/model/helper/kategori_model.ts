@@ -13,7 +13,7 @@ export async function getKategoriModels() {
 
   if (!mysqlKategori && mysql) {
     console.log('[MODEL INIT] Defining MySQL kategori model...')
-    mysqlKategori = mysql.models?.cabang ?? (await KategoriModelFactory())
+    mysqlKategori = mysql.models?.kategori ?? (await KategoriModelFactory())
   }
 
   return {

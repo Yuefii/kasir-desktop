@@ -12,7 +12,7 @@ export class SyncController {
       for (const [tableName, model] of Object.entries(sqliteModels)) {
         if (!model.rawAttributes?.isSynced) continue
 
-        const count = await model.count({
+        const count = await (model as any).count({
           where: {
             isSynced: false
           }
