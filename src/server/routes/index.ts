@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { CabangController } from '../controllers/cabang.controller'
 import { SyncController } from '../controllers/sync.controller'
 import { KategoriController } from '../controllers/kategori.controller'
+import { ProdukController } from '../controllers/produk.controller'
 
 const router = Router()
 
@@ -14,6 +15,11 @@ router.get('/kategori', KategoriController.getAll)
 router.post('/kategori', KategoriController.create)
 router.patch('/kategori/:id', KategoriController.update)
 router.delete('/kategori/:id', KategoriController.delete)
+
+router.get('/produk', ProdukController.getAll)
+router.post('/produk', ProdukController.create)
+router.patch('/produk/:id', ProdukController.update)
+router.delete('/produk/:id', ProdukController.softDelete)
 
 router.get('/sync/status', SyncController.SyncStatus)
 router.post('/sync/manual', SyncController.SyncManual)
