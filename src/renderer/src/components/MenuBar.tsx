@@ -22,10 +22,11 @@ const MenuBar = (): ReactElement => {
     {
       name: 'Data Master',
       items: [
-        { name: 'Produk', href: '/produk', shortcut: 'Alt+1' },
-        { name: 'Kategori', href: '/kategori', shortcut: 'Alt+2' },
-        { name: 'Operator', href: '/pegawai', shortcut: 'Alt+3' },
-        { name: 'Cabang', href: '/cabang', shortcut: 'Alt+4' }
+        { name: 'Cabang', href: '/cabang' },
+        { name: 'Kategori', href: '/kategori' },
+        { name: 'Produk', href: '/produk' },
+        { name: 'Operator', href: '/pegawai' },
+        { name: 'Supplier', href: '/supplier' }
       ]
     },
     {
