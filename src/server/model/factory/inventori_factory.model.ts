@@ -16,5 +16,5 @@ export const InventoriModelFactory = async () => {
   Inventori.belongsTo(Cabang, { foreignKey: 'id_cabang', as: 'cabang' })
   Cabang.hasMany(Inventori, { foreignKey: 'id_cabang', as: 'inventori_cabang' })
 
-  return Produk
+  return { Produk, Cabang, Inventori }
 }
