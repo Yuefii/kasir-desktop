@@ -1,4 +1,4 @@
-import { syncAllModels } from '../model/init_model'
+import { syncAllModels } from '../model'
 import mysql from './mysql'
 import sqlite from './sqlite'
 
@@ -19,7 +19,7 @@ export async function tryConnectMySQL() {
     sequelize = mysql
     mode = 'online'
     console.log('[MODE SWITCH] Switched to ONLINE (MySQL)')
-    await syncAllModels()
+    await syncAllModels(sequelize)
   } catch (err) {
     console.log('[MODE CHECK] MySQL not available. Staying in OFFLINE mode.')
     await switchToOffline()
@@ -32,7 +32,7 @@ export async function switchToOffline() {
     sequelize = sqlite
     mode = 'offline'
     console.log('[MODE SWITCH] Switched to OFFLINE (SQLite)')
-    await syncAllModels()
+    await syncAllModels(sequelize)
   } catch (err) {
     console.error('Failed to connect to SQLite:', err)
   }

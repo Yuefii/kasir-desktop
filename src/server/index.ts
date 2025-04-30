@@ -1,9 +1,8 @@
 import cors from 'cors'
 import router from './routes'
 import express from 'express'
-import { getMode, tryConnectMySQL } from './database/conn'
+import { getMode, switchToOffline, tryConnectMySQL } from './database/conn'
 import { isConnectedToInternet } from './utils/check_connection'
-import { syncAllModels } from './model/init_model'
 
 export async function startExpress() {
   const app = express()
@@ -13,7 +12,7 @@ export async function startExpress() {
   if (online) {
     await tryConnectMySQL()
   } else {
-    await syncAllModels()
+    await switchToOffline()
   }
 
   app.use(cors())
