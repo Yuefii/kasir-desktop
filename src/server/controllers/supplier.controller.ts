@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { SupplierModelFactory } from '../model/factory/supplier_factory.model'
-import { SupplierInstance, SupplierInterface } from '../model/supplier'
+import { SupplierInstance, SupplierInterface } from '../model/entitas/supplier'
 import { getMode } from '../database/conn'
 import { getSupplierModels } from '../model/helper/supplier_model'
 

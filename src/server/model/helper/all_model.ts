@@ -1,10 +1,10 @@
 import sqlite from '../../database/sqlite'
 import mysql from '../../database/mysql'
-import { defineCabangModel } from '../cabang'
-import { defineKategoriModel } from '../kategori'
-import { defineProdukModel } from '../produk'
-import { defineInventoriModel } from '../inventori'
-import { defineSupplierModel } from '../supplier'
+import { defineCabangModel } from '../entitas/cabang'
+import { defineKategoriModel } from '../entitas/kategori'
+import { defineProdukModel } from '../entitas/produk'
+import { defineInventoriModel } from '../entitas/inventori'
+import { defineSupplierModel } from '../entitas/supplier'
 
 export async function getAllModels() {
   const sqliteModels = {

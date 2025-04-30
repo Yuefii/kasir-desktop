@@ -1,4 +1,4 @@
-import { CabangInstance, CabangInterface } from '../model/cabang'
+import { CabangInstance, CabangInterface } from '../model/entitas/cabang'
 import { Request, Response } from 'express'
 import { getCabangModels } from '../model/helper/cabang_model'
 import { getMode } from '../database/conn'

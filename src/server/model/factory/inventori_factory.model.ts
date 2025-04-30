@@ -1,7 +1,7 @@
 import { getSequelize } from '../../database/conn'
-import { defineCabangModel } from '../cabang'
-import { defineInventoriModel } from '../inventori'
-import { defineProdukModel } from '../produk'
+import { defineCabangModel } from '../entitas/cabang'
+import { defineInventoriModel } from '../entitas/inventori'
+import { defineProdukModel } from '../entitas/produk'
 
 export const InventoriModelFactory = async () => {
   const sequelize = await getSequelize()
@@ -16,7 +16,5 @@ export const InventoriModelFactory = async () => {
   Inventori.belongsTo(Cabang, { foreignKey: 'id_cabang', as: 'cabang' })
   Cabang.hasMany(Inventori, { foreignKey: 'id_cabang', as: 'inventori_cabang' })
 
-  await sequelize.sync()
-
-  return { Produk, Cabang, Inventori }
+  return Produk
 }

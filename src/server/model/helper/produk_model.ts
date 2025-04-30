@@ -8,12 +8,12 @@ export async function getProdukModels() {
 
   if (!sqliteProduk) {
     console.log('[MODEL INIT] Defining SQLite produk model...')
-    sqliteProduk = (await ProdukModelFactory()).Produk
+    sqliteProduk = await ProdukModelFactory()
   }
 
   if (!mysqlProduk && mysql) {
     console.log('[MODEL INIT] Defining MySQL produk model...')
-    mysqlProduk = mysql.models?.produk ?? (await ProdukModelFactory()).Produk
+    mysqlProduk = mysql.models?.produk ?? (await ProdukModelFactory())
   }
 
   return {

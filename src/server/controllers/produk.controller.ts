@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { ProdukModelFactory } from '../model/factory/produk_factory.model'
-import { ProdukInstance, ProdukInterface } from '../model/produk'
+import { ProdukInstance, ProdukInterface } from '../model/entitas/produk'
 import { getProdukModels } from '../model/helper/produk_model'
 import { getMode } from '../database/conn'
 

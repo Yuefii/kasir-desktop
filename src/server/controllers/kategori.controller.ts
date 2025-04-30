@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { KategoriModelFactory } from '../model/factory/kategori_factory.model'
-import { KategoriInstance, KategoriInterface } from '../model/kategori'
+import { KategoriInstance, KategoriInterface } from '../model/entitas/kategori'
 import { getKategoriModels } from '../model/helper/kategori_model'
 import { getMode } from '../database/conn'
 

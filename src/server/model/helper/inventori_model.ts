@@ -8,12 +8,12 @@ export async function getInventoriModels() {
 
   if (!sqliteInventori) {
     console.log('[MODEL INIT] Defining SQLite inventori model...')
-    sqliteInventori = (await InventoriModelFactory()).Inventori
+    sqliteInventori = await InventoriModelFactory()
   }
 
   if (!mysqlInventori && mysql) {
     console.log('[MODEL INIT] Defining MySQL inventori model...')
-    mysqlInventori = mysql.models?.inventori ?? (await InventoriModelFactory()).Inventori
+    mysqlInventori = mysql.models?.inventori ?? (await InventoriModelFactory())
   }
 
   return {

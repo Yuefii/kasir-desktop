@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { InventoriModelFactory } from '../model/factory/inventori_factory.model'
-import { InventoriInstance, InventoriInterface } from '../model/inventori'
+import { InventoriInstance, InventoriInterface } from '../model/entitas/inventori'
 import { getInventoriModels } from '../model/helper/inventori_model'
 import { getMode } from '../database/conn'
 
