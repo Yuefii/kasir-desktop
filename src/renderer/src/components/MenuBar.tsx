@@ -50,6 +50,12 @@ const MenuBar = (): ReactElement => {
         { name: 'Riwayat Transaksi Per Produk' },
         { name: 'Laporan Cash Flow' }
       ]
+    },
+    {
+      name: 'Sinkronisasi',
+      items: [],
+      href: '/sinkronisasi',
+      is_direct_link: true
     }
   ]
 
