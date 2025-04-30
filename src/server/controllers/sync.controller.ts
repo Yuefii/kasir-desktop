@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { getAllModels } from '../model/helper/all_model'
 import { getMode } from '../database/conn'
+import { getAllModels } from '../model/helper/get_all_models'
 
 export class SyncController {
   static async SyncStatus(_req: Request, res: Response): Promise<void> {
@@ -10,7 +10,7 @@ export class SyncController {
       let totalUnsynced = 0
 
       for (const [tableName, model] of Object.entries(sqliteModels)) {
-        if (!model.rawAttributes?.isSynced) continue
+        if (!(model as any).rawAttributes?.isSynced) continue
 
         const count = await (model as any).count({
           where: {

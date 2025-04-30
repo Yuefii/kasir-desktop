@@ -1,13 +1,12 @@
-import { CabangInstance, CabangInterface } from '../model/entitas/cabang'
 import { Request, Response } from 'express'
-import { getCabangModels } from '../model/helper/cabang_model'
 import { getMode } from '../database/conn'
-import { CabangModelFactory } from '../model/factory/cabang_factory.model'
+import { models } from '../model'
+import { CabangInterface } from '../dto/cabang'
 
 export class CabangController {
   static async getAll(req: Request, res: Response) {
     try {
-      const Cabang = await CabangModelFactory()
+      const Cabang = models.Cabang
 
       const halaman = parseInt(req.query.halaman as string) || 1
       const limit = parseInt(req.query.limit as string) || 5
@@ -39,20 +38,17 @@ export class CabangController {
     request.isSynced = false
 
     try {
-      const { mysql, sqlite } = await getCabangModels()
-      const mode = getMode()
-      const sqliteData = (await sqlite.create(request as any)) as CabangInstance
+      const sqlite = models.Cabang
+      const mysql = getMode() === 'online' ? models.Cabang : null
+      const sqliteData = await sqlite.create(request)
 
-      let mysqlData: CabangInstance | null = null
+      let mysqlData = null
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           const mysqlRequest = { ...request, isSynced: true }
-          mysqlData = (await mysql.create(mysqlRequest)) as CabangInstance
-          await sqlite.update(
-            { isSynced: true },
-            { where: { id: (sqliteData as CabangInstance).id } }
-          )
+          mysqlData = await mysql.create(mysqlRequest)
+          await sqlite.update({ isSynced: true }, { where: { id: sqliteData.id } })
         } catch (mysqlErr) {
           console.error('[MySQL ERROR] Gagal insert ke MySQL:', mysqlErr)
         }
@@ -75,21 +71,20 @@ export class CabangController {
     const request: Partial<CabangInterface> = req.body
 
     try {
-      const { mysql, sqlite } = await getCabangModels()
-      const mode = getMode()
+      const sqlite = models.Cabang
+      const mysql = getMode() === 'online' ? models.Cabang : null
       const [sqliteUpdated] = await sqlite.update(request, {
         where: { id }
       })
 
-      let mysqlUpdated: CabangInstance | null = null
-      if (mode === 'online' && mysql) {
+      let mysqlUpdated = null
+      if (mysql) {
         try {
           const [affectedCount] = await mysql.update(
             { ...request, isSynced: true },
             { where: { id } }
           )
-          mysqlUpdated =
-            affectedCount > 0 ? ((await mysql.findByPk(id)) as CabangInstance | null) : null
+          mysqlUpdated = affectedCount > 0 ? await mysql.findByPk(id) : null
         } catch (error) {
           console.error('[MYSQL ERROR] gagal untuk update ke mysql:', error)
         }
@@ -114,21 +109,20 @@ export class CabangController {
     const { id } = req.params
 
     try {
-      const { mysql, sqlite } = await getCabangModels()
-      const mode = getMode()
+      const sqlite = models.Cabang
+      const mysql = getMode() === 'online' ? models.Cabang : null
 
       const [sqliteUpdated] = await sqlite.update({ is_aktif: false }, { where: { id } })
 
-      let mysqlUpdated: CabangInstance | null = null
+      let mysqlUpdated = null
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           const [affectedCount] = await mysql.update(
             { is_aktif: false, isSynced: true },
             { where: { id } }
           )
-          mysqlUpdated =
-            affectedCount > 0 ? ((await mysql.findByPk(id)) as CabangInstance | null) : null
+          mysqlUpdated = affectedCount > 0 ? await mysql.findByPk(id) : null
         } catch (error) {
           console.error('[MYSQL ERROR] gagal update ke mysql:', error)
         }

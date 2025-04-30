@@ -1,19 +1,18 @@
 import { Request, Response } from 'express'
-import { InventoriModelFactory } from '../model/factory/inventori_factory.model'
-import { InventoriInstance, InventoriInterface } from '../model/entitas/inventori'
-import { getInventoriModels } from '../model/helper/inventori_model'
 import { getMode } from '../database/conn'
+import { models } from '../model'
+import { InventoriInterface } from '../dto/inventori'
 
 export class InventoriController {
   static async getAll(req: Request, res: Response) {
     try {
-      const Inventori = await InventoriModelFactory()
+      const Inventori = models.Inventori
 
       const halaman = parseInt(req.query.halaman as string) || 1
       const limit = parseInt(req.query.limit as string) || 5
       const offset = (halaman - 1) * limit
 
-      const { count, rows } = await Inventori.Inventori.findAndCountAll({
+      const { count, rows } = await Inventori.findAndCountAll({
         limit,
         offset,
         where: {
@@ -59,9 +58,9 @@ export class InventoriController {
     }
 
     try {
-      const { mysql, sqlite } = await getInventoriModels()
-      const mode = getMode()
-      const sqliteCreated = (await sqlite.create(request as any)) as InventoriInstance
+      const sqlite = models.Inventori
+      const mysql = getMode() === 'online' ? models.Inventori : null
+      const sqliteCreated = await sqlite.create(request)
 
       const sqliteData = await sqlite.findOne({
         where: { id: sqliteCreated.id },
@@ -77,17 +76,14 @@ export class InventoriController {
         ]
       })
 
-      let mysqlData: InventoriInstance | null = null
+      let mysqlData = null
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           const mysqlRequest = { ...request, isSynced: true }
-          const mysqlCreated = (await mysql.create(mysqlRequest)) as InventoriInstance
-          await sqlite.update(
-            { isSynced: true },
-            { where: { id: (sqliteCreated as InventoriInstance).id } }
-          )
-          mysqlData = (await mysql.findOne({
+          const mysqlCreated = await mysql.create(mysqlRequest)
+          await sqlite.update({ isSynced: true }, { where: { id: sqliteCreated.id } })
+          mysqlData = await mysql.findOne({
             where: { id: mysqlCreated.id },
             include: [
               {
@@ -99,7 +95,7 @@ export class InventoriController {
                 attributes: ['id', 'kode_produk', 'nama']
               }
             ]
-          })) as InventoriInstance
+          })
         } catch (mysqlErr) {
           console.error('[MySQL ERROR] Gagal insert ke MySQL:', mysqlErr)
         }
@@ -123,21 +119,20 @@ export class InventoriController {
     request.updated_at = new Date()
 
     try {
-      const { mysql, sqlite } = await getInventoriModels()
-      const mode = getMode()
+      const sqlite = models.Inventori
+      const mysql = getMode() === 'online' ? models.Inventori : null
       const [sqliteUpdated] = await sqlite.update(request, {
         where: { id }
       })
 
-      let mysqlUpdated: InventoriInstance | null = null
-      if (mode === 'online' && mysql) {
+      let mysqlUpdated = null
+      if (mysql) {
         try {
           const [affectedCount] = await mysql.update(
             { ...request, isSynced: true },
             { where: { id } }
           )
-          mysqlUpdated =
-            affectedCount > 0 ? ((await mysql.findByPk(id)) as InventoriInstance | null) : null
+          mysqlUpdated = affectedCount > 0 ? await mysql.findByPk(id) : null
         } catch (error) {
           console.error('[MYSQL ERROR] gagal untuk update ke mysql:', error)
         }
@@ -162,21 +157,20 @@ export class InventoriController {
     const { id } = req.params
 
     try {
-      const { mysql, sqlite } = await getInventoriModels()
-      const mode = getMode()
+      const sqlite = models.Inventori
+      const mysql = getMode() === 'online' ? models.Inventori : null
 
       const [sqliteUpdated] = await sqlite.update({ is_aktif: false }, { where: { id } })
 
-      let mysqlUpdated: InventoriInstance | null = null
+      let mysqlUpdated = null
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           const [affectedCount] = await mysql.update(
             { is_aktif: false, isSynced: true },
             { where: { id } }
           )
-          mysqlUpdated =
-            affectedCount > 0 ? ((await mysql.findByPk(id)) as InventoriInstance | null) : null
+          mysqlUpdated = affectedCount > 0 ? await mysql.findByPk(id) : null
         } catch (error) {
           console.error('[MYSQL ERROR] gagal update ke mysql:', error)
         }

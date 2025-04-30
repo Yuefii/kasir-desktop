@@ -1,13 +1,12 @@
 import { Request, Response } from 'express'
-import { SupplierModelFactory } from '../model/factory/supplier_factory.model'
-import { SupplierInstance, SupplierInterface } from '../model/entitas/supplier'
 import { getMode } from '../database/conn'
-import { getSupplierModels } from '../model/helper/supplier_model'
+import { models } from '../model'
+import { SupplierInterface } from '../dto/supplier'
 
 export class SupplierController {
   static async getAll(req: Request, res: Response) {
     try {
-      const Supplier = await SupplierModelFactory()
+      const Supplier = models.Supplier
 
       const halaman = parseInt(req.query.halaman as string) || 1
       const limit = parseInt(req.query.limit as string) || 5
@@ -38,20 +37,17 @@ export class SupplierController {
     request.isSynced = false
 
     try {
-      const { mysql, sqlite } = await getSupplierModels()
-      const mode = getMode()
-      const sqliteData = (await sqlite.create(request as any)) as SupplierInstance
+      const sqlite = models.Supplier
+      const mysql = getMode() === 'online' ? models.Supplier : null
+      const sqliteData = await sqlite.create(request)
 
-      let mysqlData: SupplierInstance | null = null
+      let mysqlData = null
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           const mysqlRequest = { ...request, isSynced: true }
-          mysqlData = (await mysql.create(mysqlRequest)) as SupplierInstance
-          await sqlite.update(
-            { isSynced: true },
-            { where: { id: (sqliteData as SupplierInstance).id } }
-          )
+          mysqlData = await mysql.create(mysqlRequest)
+          await sqlite.update({ isSynced: true }, { where: { id: sqliteData.id } })
         } catch (mysqlErr) {
           console.error('[MySQL ERROR] Gagal insert ke MySQL:', mysqlErr)
         }
@@ -75,21 +71,20 @@ export class SupplierController {
     request.updated_at = new Date()
 
     try {
-      const { mysql, sqlite } = await getSupplierModels()
-      const mode = getMode()
+      const sqlite = models.Supplier
+      const mysql = getMode() === 'online' ? models.Supplier : null
       const [sqliteUpdated] = await sqlite.update(request, {
         where: { id }
       })
 
-      let mysqlUpdated: SupplierInstance | null = null
-      if (mode === 'online' && mysql) {
+      let mysqlUpdated = null
+      if (mysql) {
         try {
           const [affectedCount] = await mysql.update(
             { ...request, isSynced: true },
             { where: { id } }
           )
-          mysqlUpdated =
-            affectedCount > 0 ? ((await mysql.findByPk(id)) as SupplierInstance | null) : null
+          mysqlUpdated = affectedCount > 0 ? await mysql.findByPk(id) : null
         } catch (error) {
           console.error('[MYSQL ERROR] gagal untuk update ke mysql:', error)
         }
@@ -114,14 +109,14 @@ export class SupplierController {
     const { id } = req.params
 
     try {
-      const { mysql, sqlite } = await getSupplierModels()
-      const mode = getMode()
+      const sqlite = models.Supplier
+      const mysql = getMode() === 'online' ? models.Supplier : null
 
       const sqliteDeleted = await sqlite.destroy({ where: { id } })
 
       let mysqlDeleted: number = 0
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           mysqlDeleted = await mysql.destroy({ where: { id } })
         } catch (error) {

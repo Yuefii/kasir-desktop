@@ -1,13 +1,12 @@
 import { Request, Response } from 'express'
-import { KategoriModelFactory } from '../model/factory/kategori_factory.model'
-import { KategoriInstance, KategoriInterface } from '../model/entitas/kategori'
-import { getKategoriModels } from '../model/helper/kategori_model'
 import { getMode } from '../database/conn'
+import { models } from '../model'
+import { KategoriInterface } from '../dto/kategori'
 
 export class KategoriController {
   static async getAll(req: Request, res: Response) {
     try {
-      const Kategori = await KategoriModelFactory()
+      const Kategori = models.Kategori
 
       const halaman = parseInt(req.query.halaman as string) || 1
       const limit = parseInt(req.query.limit as string) || 5
@@ -37,20 +36,18 @@ export class KategoriController {
     request.isSynced = false
 
     try {
-      const { mysql, sqlite } = await getKategoriModels()
-      const mode = getMode()
-      const sqliteData = (await sqlite.create(request as any)) as KategoriInstance
+      const sqlite = models.Kategori
+      const mysql = getMode() === 'online' ? models.Kategori : null
 
-      let mysqlData: KategoriInstance | null = null
+      const sqliteData = await sqlite.create(request)
 
-      if (mode === 'online' && mysql) {
+      let mysqlData = null
+
+      if (mysql) {
         try {
           const mysqlRequest = { ...request, isSynced: true }
-          mysqlData = (await mysql.create(mysqlRequest)) as KategoriInstance
-          await sqlite.update(
-            { isSynced: true },
-            { where: { id: (sqliteData as KategoriInstance).id } }
-          )
+          mysqlData = await mysql.create(mysqlRequest)
+          await sqlite.update({ isSynced: true }, { where: { id: sqliteData.id } })
         } catch (mysqlErr) {
           console.error('[MySQL ERROR] Gagal insert ke MySQL:', mysqlErr)
         }
@@ -73,21 +70,20 @@ export class KategoriController {
     const request: Partial<KategoriInterface> = req.body
 
     try {
-      const { mysql, sqlite } = await getKategoriModels()
-      const mode = getMode()
+      const sqlite = models.Kategori
+      const mysql = getMode() === 'online' ? models.Kategori : null
       const [sqliteUpdated] = await sqlite.update(request, {
         where: { id }
       })
 
-      let mysqlUpdated: KategoriInstance | null = null
-      if (mode === 'online' && mysql) {
+      let mysqlUpdated = null
+      if (mysql) {
         try {
           const [affectedCount] = await mysql.update(
             { ...request, isSynced: true },
             { where: { id } }
           )
-          mysqlUpdated =
-            affectedCount > 0 ? ((await mysql.findByPk(id)) as KategoriInstance | null) : null
+          mysqlUpdated = affectedCount > 0 ? await mysql.findByPk(id) : null
         } catch (error) {
           console.error('[MYSQL ERROR] gagal untuk update ke mysql:', error)
         }
@@ -112,14 +108,14 @@ export class KategoriController {
     const { id } = req.params
 
     try {
-      const { mysql, sqlite } = await getKategoriModels()
-      const mode = getMode()
+      const sqlite = models.Kategori
+      const mysql = getMode() === 'online' ? models.Kategori : null
 
       const sqliteDeleted = await sqlite.destroy({ where: { id } })
 
       let mysqlDeleted: number = 0
 
-      if (mode === 'online' && mysql) {
+      if (mysql) {
         try {
           mysqlDeleted = await mysql.destroy({ where: { id } })
         } catch (error) {
