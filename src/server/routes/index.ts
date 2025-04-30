@@ -4,6 +4,7 @@ import { SyncController } from '../controllers/sync.controller'
 import { KategoriController } from '../controllers/kategori.controller'
 import { ProdukController } from '../controllers/produk.controller'
 import { InventoriController } from '../controllers/inventori.controller'
+import { SupplierController } from '../controllers/supplier.controller'
 
 const router = Router()
 
@@ -26,6 +27,11 @@ router.get('/inventori', InventoriController.getAll)
 router.post('/inventori', InventoriController.create)
 router.patch('/inventori/:id', InventoriController.update)
 router.delete('/inventori/:id', InventoriController.softDelete)
+
+router.get('/supplier', SupplierController.getAll)
+router.post('/supplier', SupplierController.create)
+router.patch('/supplier/:id', SupplierController.update)
+router.delete('/supplier/:id', SupplierController.delete)
 
 router.get('/sync/status', SyncController.SyncStatus)
 router.post('/sync/manual', SyncController.SyncManual)
