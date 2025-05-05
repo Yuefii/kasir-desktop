@@ -2,7 +2,7 @@ import cors from 'cors'
 import router from './routes'
 import express from 'express'
 import { getMode, switchToOffline, tryConnectMySQL } from './database/conn'
-import { isConnectedToInternet } from './utils/check_connection'
+import { isConnectedToInternet } from '@shared/helper/check_connection'
 
 export async function startExpress() {
   const app = express()

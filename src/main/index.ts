@@ -2,10 +2,10 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { startExpress } from '../server'
 
-import { isConnectedToInternet } from '../server/utils/check_connection'
-import { tryConnectMySQL, switchToOffline, getMode } from '../server/database/conn'
+import { isConnectedToInternet } from '@shared/helper/check_connection'
+import { startExpress } from '@server/index'
+import { getMode, switchToOffline, tryConnectMySQL } from '@server/database/conn'
 
 let expressServer: ReturnType<typeof startExpress> | null = null
 let intervalId: NodeJS.Timeout | null = null
