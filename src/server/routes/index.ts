@@ -5,6 +5,7 @@ import { KategoriController } from '../controllers/kategori.controller'
 import { ProdukController } from '../controllers/produk.controller'
 import { InventoriController } from '../controllers/inventori.controller'
 import { SupplierController } from '../controllers/supplier.controller'
+import { PegawaiController } from '../controllers/pegawai.controller'
 
 const router = Router()
 
@@ -32,6 +33,11 @@ router.get('/supplier', SupplierController.getAll)
 router.post('/supplier', SupplierController.create)
 router.patch('/supplier/:id', SupplierController.update)
 router.delete('/supplier/:id', SupplierController.delete)
+
+router.get('/pegawai', PegawaiController.getAll)
+router.post('/pegawai', PegawaiController.create)
+router.patch('/pegawai/:id', PegawaiController.update)
+router.delete('/pegawai/:id', PegawaiController.softDelete)
 
 router.get('/sync/status', SyncController.SyncStatus)
 router.post('/sync/manual', SyncController.SyncManual)

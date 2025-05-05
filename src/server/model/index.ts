@@ -4,6 +4,7 @@ import { defineProduk } from './define/define_produk'
 import { defineCabang } from './define/define_cabang'
 import { defineInventori } from './define/define_inventori'
 import { defineSupplier } from './define/define_supplier'
+import { definePegawai } from './define/define_pegawai'
 
 export const models: { [key: string]: any } = {}
 
@@ -13,6 +14,7 @@ export function syncAllModels(sequelize: Sequelize) {
   models.Cabang = defineCabang(sequelize)
   models.Inventori = defineInventori(sequelize)
   models.Supplier = defineSupplier(sequelize)
+  models.Pegawai = definePegawai(sequelize)
 
   models.Produk.belongsTo(models.Kategori, {
     foreignKey: 'id_kategori',
