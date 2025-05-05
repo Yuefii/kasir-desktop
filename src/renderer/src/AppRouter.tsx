@@ -2,12 +2,12 @@ import { createHashRouter, createBrowserRouter, RouterProvider } from 'react-rou
 import Layout from './layouts/AppLayout'
 import Kasir from './views/Kasir'
 import Category from './views/Kategori'
-import User from './views/User'
 import Cabang from './views/Cabang'
 import Produk from './views/Produk'
 import Inventori from './views/Inventori'
 import Supplier from './views/Supplier'
 import Sinkronisasi from './views/Sinkronisasi'
+import Pegawai from './views/Pegawai'
 
 const routes = [
   {
@@ -18,7 +18,7 @@ const routes = [
       { index: true, element: <Kasir /> },
       { path: 'produk', element: <Produk /> },
       { path: 'kategori', element: <Category /> },
-      { path: 'pegawai', element: <User /> },
+      { path: 'pegawai', element: <Pegawai /> },
       { path: 'cabang', element: <Cabang /> },
       { path: 'supplier', element: <Supplier /> },
       { path: 'inventori', element: <Inventori /> },
