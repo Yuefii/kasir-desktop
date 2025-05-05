@@ -1,20 +1,33 @@
-import { useEffect, useState } from 'react'
-import FormAction from './ui/FormAction'
-import FormInput from './ui/FormInput'
+import { ChangeEvent, FormEvent, JSX, useEffect, useState } from 'react'
 
-const KategoriFormUpdate = ({ kategori, onSubmit, onCancel }) => {
+import FormInput from './ui/FormInput'
+import FormAction from './ui/FormAction'
+
+interface Kategori {
+  id?: number
+  nama: string
+  created_at?: string
+}
+
+interface Props {
+  kategori: Kategori
+  onSubmit: (data: Kategori) => void
+  onCancel: () => void
+}
+
+const KategoriFormUpdate = ({ kategori, onSubmit, onCancel }: Props): JSX.Element => {
   const [formData, setFormData] = useState({ ...kategori })
 
   useEffect(() => {
     if (kategori) setFormData(kategori)
   }, [kategori])
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent): void => {
     e.preventDefault()
     onSubmit(formData)
   }

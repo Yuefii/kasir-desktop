@@ -2,14 +2,27 @@ import { format } from 'date-fns'
 
 import TableRow from './ui/TableRow'
 import TableHead from './ui/TableHead'
+import { JSX } from 'react'
 
-const KategoriList = ({ kategori, onEdit, onDelete }) => {
+interface Kategori {
+  id: number
+  nama: string
+  created_at: string
+}
+
+interface Props {
+  kategori: Kategori[]
+  onEdit: (item: Kategori) => void
+  onDelete: (item: Kategori) => void
+}
+
+const KategoriList = ({ kategori, onEdit, onDelete }: Props): JSX.Element => {
   const columns = [
     { label: 'No', key: 'index' },
     { label: 'Nama Kategori', key: 'nama' },
     {
       label: 'Dibuat Tanggal',
-      render: (item) => format(new Date(item.created_at), 'dd MMM yyyy, HH:mm')
+      render: (item: Kategori) => format(new Date(item.created_at), 'dd MMM yyyy, HH:mm')
     }
   ]
   return (

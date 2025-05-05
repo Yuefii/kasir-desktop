@@ -1,19 +1,24 @@
-import { useState } from 'react'
+import { ChangeEvent, useState, FormEvent, JSX } from 'react'
 
 import FormInput from './ui/FormInput'
 import FormAction from './ui/FormAction'
 
-const KategoriFormCreate = ({ onSubmit, onCancel }) => {
+interface Props {
+  onSubmit: (data: { nama: string }) => void
+  onCancel: () => void
+}
+
+const KategoriFormCreate = ({ onSubmit, onCancel }: Props): JSX.Element => {
   const [formData, setFormData] = useState({
     nama: ''
   })
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent): void => {
     e.preventDefault()
     onSubmit(formData)
   }
