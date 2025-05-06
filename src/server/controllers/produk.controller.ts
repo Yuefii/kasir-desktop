@@ -2,22 +2,29 @@ import { Request, Response } from 'express'
 import { getMode } from '../database/conn'
 import { models } from '../model'
 import { ProdukInterface } from '../dto/produk'
+import { Op } from 'sequelize'
 
 export class ProdukController {
   static async getAll(req: Request, res: Response) {
     try {
       const Produk = models.Produk
+      const paginationQuery = req.query.pagination as string | undefined
+      const isPaginationDisabled = paginationQuery === 'false'
 
-      const halaman = parseInt(req.query.halaman as string) || 1
-      const limit = parseInt(req.query.limit as string) || 5
-      const offset = (halaman - 1) * limit
+      const search = req.query.search as string | undefined
 
-      const { count, rows } = await Produk.findAndCountAll({
-        limit,
-        offset,
-        where: {
-          is_aktif: true
-        },
+      const whereClause: any = {
+        is_aktif: true
+      }
+
+      if (search) {
+        whereClause.nama = {
+          [Op.like]: `%${search}%`
+        }
+      }
+
+      const queryOptions: any = {
+        where: whereClause,
         attributes: {
           exclude: ['id_kategori']
         },
@@ -27,16 +34,33 @@ export class ProdukController {
             attributes: ['id', 'nama']
           }
         ]
-      })
-      res.status(200).json({
-        pagination: {
-          total_data: count,
-          halaman_sekarang: halaman,
-          data_per_halaman: limit,
-          total_halaman: Math.ceil(count / limit)
-        },
-        data: rows
-      })
+      }
+      if (isPaginationDisabled) {
+        const data = await Produk.findAll(queryOptions)
+        res.status(200).json({
+          pagination: false,
+          data
+        })
+      } else {
+        const halaman = parseInt(req.query.halaman as string) || 1
+        const limit = parseInt(req.query.limit as string) || 5
+        const offset = (halaman - 1) * limit
+
+        queryOptions.limit = limit
+        queryOptions.offset = offset
+
+        const { count, rows } = await Produk.findAndCountAll(queryOptions)
+
+        res.status(200).json({
+          pagination: {
+            total_data: count,
+            halaman_sekarang: halaman,
+            data_per_halaman: limit,
+            total_halaman: Math.ceil(count / limit)
+          },
+          data: rows
+        })
+      }
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error', error })
     }
