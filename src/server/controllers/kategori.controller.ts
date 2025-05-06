@@ -1,29 +1,48 @@
-import { Request, Response } from 'express'
-import { getMode } from '../database/conn'
+import { Model } from 'sequelize'
 import { models } from '../model'
+import { getMode } from '../database/conn'
+import { Request, Response } from 'express'
 import { KategoriInterface } from '../dto/kategori'
 
 export class KategoriController {
   static async getAll(req: Request, res: Response) {
     try {
       const Kategori = models.Kategori
+      const paginationQuery = req.query.pagination
+      const isPaginationDisabled = paginationQuery === 'false'
 
-      const halaman = parseInt(req.query.halaman as string) || 1
-      const limit = parseInt(req.query.limit as string) || 5
-      const offset = (halaman - 1) * limit
+      let data: Model[]
+      let count: number
 
-      const { count, rows } = await Kategori.findAndCountAll({
-        limit,
-        offset
-      })
+      if (isPaginationDisabled) {
+        data = await Kategori.findAll()
+        count = data.length
+      } else {
+        const halaman = parseInt(req.query.halaman as string) || 1
+        const limit = parseInt(req.query.limit as string) || 5
+        const offset = (halaman - 1) * limit
+
+        const result = await Kategori.findAndCountAll({
+          limit,
+          offset
+        })
+
+        data = result.rows
+        count = result.count
+        res.status(200).json({
+          pagination: {
+            total_data: count,
+            halaman_sekarang: halaman,
+            data_per_halaman: limit,
+            total_halaman: Math.ceil(count / limit)
+          },
+          data
+        })
+      }
+
       res.status(200).json({
-        pagination: {
-          total_data: count,
-          halaman_sekarang: halaman,
-          data_per_halaman: limit,
-          total_halaman: Math.ceil(count / limit)
-        },
-        data: rows
+        pagination: false,
+        data
       })
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error', error })
