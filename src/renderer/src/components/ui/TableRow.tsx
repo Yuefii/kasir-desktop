@@ -1,4 +1,5 @@
 import TableCell from './TableCell'
+import nestedValue from '@renderer/helper/nested_value'
 import ActionButton from './ActionButton'
 
 const TableRow = ({ item, index, columns, onEdit, onDelete }) => (
@@ -9,7 +10,7 @@ const TableRow = ({ item, index, columns, onEdit, onDelete }) => (
           ? col.render(item, index)
           : col.key === 'index'
             ? index + 1
-            : item[col.key]}
+            : nestedValue(item, col.key)}
       </TableCell>
     ))}
     <TableCell>
