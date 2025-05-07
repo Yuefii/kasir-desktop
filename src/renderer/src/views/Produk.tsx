@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
-import Modal from '../components/Modal'
-import axios from 'axios'
 import { BASE_URL } from '@renderer/utils/env'
+import { useEffect, useState } from 'react'
+
+import axios from 'axios'
+import Modal from '@renderer/components/Modal'
+import AddButton from '@renderer/components/ui/AddButton'
+import ProdukList from '@renderer/components/ProdukList'
+import Pagination from '@renderer/components/ui/Pagination'
 import ProdukFormUpdate from '@renderer/components/ProdukFormUpdate'
 import ProdukFormCreate from '@renderer/components/ProdukFormCreate'
-import ProdukList from '@renderer/components/ProdukList'
 
 interface ProdukType {
   id: number
@@ -86,85 +89,15 @@ const Produk = () => {
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <h1 className="text-3xl font-bold text-black mb-6">Data Produk</h1>
-
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleAdd}
-          className="bg-black hover:opacity-80 text-white px-4 py-2 rounded flex items-center"
-        >
-          <svg
-            className="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            ></path>
-          </svg>
-          Tambah Produk
-        </button>
-      </div>
-
+      <AddButton onClick={handleAdd} label="Tambah Produk" />
       <ProdukList produk={produk} onEdit={handleEdit} onDelete={handleDelete} />
-
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500 mt-2 text-center">
-          Menampilkan {(paginationInfo.halaman_sekarang - 1) * paginationInfo.data_per_halaman + 1}-
-          {Math.min(
-            paginationInfo.halaman_sekarang * paginationInfo.data_per_halaman,
-            paginationInfo.total_data
-          )}{' '}
-          dari {paginationInfo.total_data} produk
-        </div>
-
-        <div className="flex justify-center mt-6">
-          <nav className="inline-flex rounded-md shadow">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-l-md border ${
-                currentPage === 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              &laquo; Prev
-            </button>
-
-            {Array.from({ length: totalPages }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(index + 1)}
-                className={`px-3 py-1 border-t border-b ${
-                  currentPage === index + 1
-                    ? 'bg-black text-white'
-                    : 'bg-white text-black hover:bg-gray-50'
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-r-md border ${
-                currentPage === totalPages
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Next &raquo;
-            </button>
-          </nav>
-        </div>
-      </div>
-
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalData={paginationInfo.total_data}
+        dataPerPage={paginationInfo.data_per_halaman}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         {currentProduk ? (
           <ProdukFormUpdate
