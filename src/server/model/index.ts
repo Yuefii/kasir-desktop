@@ -5,12 +5,14 @@ import { defineCabang } from './define/define_cabang'
 import { defineInventori } from './define/define_inventori'
 import { defineSupplier } from './define/define_supplier'
 import { definePegawai } from './define/define_pegawai'
+import { defineHargaProduk } from './define/define_harga_produk'
 
 export const models: { [key: string]: any } = {}
 
 export function syncAllModels(sequelize: Sequelize) {
   models.Kategori = defineKategori(sequelize)
   models.Produk = defineProduk(sequelize)
+  models.HargaProduk = defineHargaProduk(sequelize)
   models.Cabang = defineCabang(sequelize)
   models.Inventori = defineInventori(sequelize)
   models.Supplier = defineSupplier(sequelize)
@@ -44,6 +46,26 @@ export function syncAllModels(sequelize: Sequelize) {
   models.Cabang.hasMany(models.Inventori, {
     foreignKey: 'id_cabang',
     as: 'inventori_cabang'
+  })
+
+  models.HargaProduk.belongsTo(models.Produk, {
+    foreignKey: 'id_produk',
+    as: 'produk'
+  })
+
+  models.Produk.hasMany(models.HargaProduk, {
+    foreignKey: 'id_produk',
+    as: 'harga_produk'
+  })
+
+  models.HargaProduk.belongsTo(models.Cabang, {
+    foreignKey: 'id_cabang',
+    as: 'cabang'
+  })
+
+  models.Cabang.hasMany(models.HargaProduk, {
+    foreignKey: 'id_cabang',
+    as: 'harga_produk_cabang'
   })
 
   return sequelize.sync()
