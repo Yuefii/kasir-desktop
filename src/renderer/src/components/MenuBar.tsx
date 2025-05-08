@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 interface MenuItem {
@@ -15,41 +15,38 @@ interface Menu {
   items: MenuItem[]
 }
 
-const MenuBar = (): ReactElement => {
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+const MenuBar = (): React.ReactElement => {
+  const [activeMenu, setActiveMenu] = React.useState<string | null>(null)
 
   const menus: Menu[] = [
+    {
+      name: 'Kasir',
+      items: [],
+      href: '/kasir',
+      is_direct_link: true
+    },
     {
       name: 'Data Master',
       items: [
         { name: 'Cabang', href: '/cabang' },
         { name: 'Kategori', href: '/kategori' },
         { name: 'Produk', href: '/produk' },
+        { name: 'Harga', href: '/harga-produk' },
         { name: 'Operator', href: '/pegawai' },
         { name: 'Supplier', href: '/supplier' }
       ]
     },
     {
-      name: 'Inventori',
+      name: 'Data Inventori',
       items: [],
       href: '/inventori',
       is_direct_link: true
     },
     {
-      name: 'Data Pesanan',
-      items: [{ name: 'Semua Pesanan' }, { name: 'Pesanan Tunai' }, { name: 'Pesanan Non-Tunai' }]
-    },
-    {
-      name: 'Akutansi',
-      items: [{ name: 'Buku Besar' }, { name: 'Transaksi Keuangan' }, { name: 'Cash Flow' }]
-    },
-    {
-      name: 'Laporan',
-      items: [
-        { name: 'Semua Transaksi Penjualan' },
-        { name: 'Riwayat Transaksi Per Produk' },
-        { name: 'Laporan Cash Flow' }
-      ]
+      name: 'Data Pembelian',
+      items: [],
+      href: '/pembelian',
+      is_direct_link: true
     },
     {
       name: 'Sinkronisasi',
