@@ -1,30 +1,34 @@
 import { DataTypes } from 'sequelize'
 
-export const hargaProduk = {
+export const pembelianItem = {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
+  jumlah: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   harga: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  mulai_berlaku: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
   id_produk: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: false,
+    references: {
+      model: 'produk',
+      key: 'id'
+    }
   },
-  id_cabang: {
+  id_pembelian: {
     type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  is_aktif: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
+    allowNull: false,
+    references: {
+      model: 'pembelian',
+      key: 'id'
+    }
   },
   isSynced: {
     type: DataTypes.BOOLEAN,

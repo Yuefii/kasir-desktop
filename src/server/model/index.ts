@@ -6,6 +6,8 @@ import { defineInventori } from './define/define_inventori'
 import { defineSupplier } from './define/define_supplier'
 import { definePegawai } from './define/define_pegawai'
 import { defineHargaProduk } from './define/define_harga_produk'
+import { definePembelian } from './define/define_pembelian'
+import { definePembelianItem } from './define/define_pembelian_item'
 
 export const models: { [key: string]: any } = {}
 
@@ -17,6 +19,8 @@ export function syncAllModels(sequelize: Sequelize) {
   models.Inventori = defineInventori(sequelize)
   models.Supplier = defineSupplier(sequelize)
   models.Pegawai = definePegawai(sequelize)
+  models.Pembelian = definePembelian(sequelize)
+  models.PembelianItem = definePembelianItem(sequelize)
 
   models.Produk.belongsTo(models.Kategori, {
     foreignKey: 'id_kategori',
@@ -66,6 +70,46 @@ export function syncAllModels(sequelize: Sequelize) {
   models.Cabang.hasMany(models.HargaProduk, {
     foreignKey: 'id_cabang',
     as: 'harga_produk_cabang'
+  })
+
+  models.Pembelian.belongsTo(models.Supplier, {
+    foreignKey: 'id_supplier',
+    as: 'supplier'
+  })
+
+  models.Supplier.hasMany(models.Pembelian, {
+    foreignKey: 'id_supplier',
+    as: 'pembelian_supplier'
+  })
+
+  models.Pembelian.belongsTo(models.Cabang, {
+    foreignKey: 'id_cabang',
+    as: 'cabang'
+  })
+
+  models.Cabang.hasMany(models.Pembelian, {
+    foreignKey: 'id_cabang',
+    as: 'pembelian_cabang'
+  })
+
+  models.PembelianItem.belongsTo(models.Pembelian, {
+    foreignKey: 'id_pembelian',
+    as: 'pembelian'
+  })
+
+  models.Pembelian.hasMany(models.PembelianItem, {
+    foreignKey: 'id_pembelian',
+    as: 'pembelian_item'
+  })
+
+  models.PembelianItem.belongsTo(models.Produk, {
+    foreignKey: 'id_produk',
+    as: 'produk'
+  })
+
+  models.Produk.hasMany(models.PembelianItem, {
+    foreignKey: 'id_produk',
+    as: 'pembelian_item_produk'
   })
 
   return sequelize.sync()
