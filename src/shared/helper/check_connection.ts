@@ -2,7 +2,7 @@ import dns from 'dns'
 
 //  NOTE:
 // fungsi untuk pengecekan perangkat sedang terhubung ke internet atau tidak.
-export function isConnectedToInternet() {
+export function isConnectedToInternet(): Promise<boolean> {
   return new Promise((resolve) => {
     dns.lookup('google.com', (err) => {
       if (err && err.code === 'ENOTFOUND') {
