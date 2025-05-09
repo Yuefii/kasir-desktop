@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize'
+import { Model, ModelStatic, Sequelize } from 'sequelize'
 import { defineKategori } from './define/define_kategori'
 import { defineProduk } from './define/define_produk'
 import { defineCabang } from './define/define_cabang'
@@ -9,9 +9,9 @@ import { defineHargaProduk } from './define/define_harga_produk'
 import { definePembelian } from './define/define_pembelian'
 import { definePembelianItem } from './define/define_pembelian_item'
 
-export const models: { [key: string]: any } = {}
+export const models: { [key: string]: ModelStatic<Model> } = {}
 
-export function syncAllModels(sequelize: Sequelize) {
+export function syncAllModels(sequelize: Sequelize): Promise<Sequelize> {
   models.Kategori = defineKategori(sequelize)
   models.Produk = defineProduk(sequelize)
   models.HargaProduk = defineHargaProduk(sequelize)
