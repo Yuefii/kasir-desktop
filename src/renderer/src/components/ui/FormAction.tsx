@@ -1,4 +1,11 @@
-const FormAction = ({ label, onCancel }) => {
+import React from 'react'
+
+type Props = {
+  label: string
+  onCancel: () => void
+}
+
+const FormAction: React.FC<Props> = ({ label, onCancel }) => {
   return (
     <div className="flex justify-end space-x-3 pt-4">
       <button

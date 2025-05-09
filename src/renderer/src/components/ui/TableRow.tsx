@@ -1,8 +1,31 @@
 import TableCell from './TableCell'
 import nestedValue from '@renderer/helper/nested_value'
 import ActionButton from './ActionButton'
+import React from 'react'
 
-const TableRow = ({ item, index, columns, onEdit, onDelete }) => (
+interface Column<T> {
+  key: string
+  render?: (item: T, index: number) => React.ReactNode
+}
+
+interface TableRowProps<T> {
+  item: T
+  index: number
+  columns: Column<T>[]
+  actions?: ('edit' | 'delete' | 'detail')[]
+  onEdit?: (item: T) => void
+  onDelete?: (id: string | number) => void
+  onDetail?: (item: T) => void
+}
+const TableRow = <T extends { id: string | number }>({
+  item,
+  index,
+  columns,
+  actions = ['edit', 'delete', 'detail'],
+  onEdit,
+  onDelete,
+  onDetail
+}: TableRowProps<T>): React.JSX.Element => (
   <tr className="hover:bg-gray-50">
     {columns.map((col, i) => (
       <TableCell key={i}>
@@ -14,7 +37,12 @@ const TableRow = ({ item, index, columns, onEdit, onDelete }) => (
       </TableCell>
     ))}
     <TableCell>
-      <ActionButton onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} />
+      <ActionButton
+        onDetail={onDetail ? () => onDetail(item) : undefined}
+        onEdit={onEdit ? () => onEdit(item) : undefined}
+        onDelete={onDelete ? () => onDelete(item.id) : undefined}
+        actions={actions}
+      />
     </TableCell>
   </tr>
 )

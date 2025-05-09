@@ -1,4 +1,20 @@
-const Pagination = ({ currentPage, totalPages, onPageChange, totalData, dataPerPage }) => {
+import React from 'react'
+
+type Props = {
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+  totalData: number
+  dataPerPage: number
+}
+
+const Pagination: React.FC<Props> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalData,
+  dataPerPage
+}) => {
   const start = (currentPage - 1) * dataPerPage + 1
   const end = Math.min(currentPage * dataPerPage, totalData)
 

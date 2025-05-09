@@ -1,4 +1,12 @@
-const AddButton = ({ onClick, label = 'Tambah Data', icon = true }) => {
+import React from 'react'
+
+type AddButtonProps = {
+  onClick: () => void
+  label?: string
+  icon?: boolean
+}
+
+const AddButton: React.FC<AddButtonProps> = ({ onClick, label = 'Tambah Data', icon = true }) => {
   return (
     <div className="flex justify-end mb-4">
       <button

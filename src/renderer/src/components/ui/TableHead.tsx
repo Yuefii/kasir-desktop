@@ -1,4 +1,15 @@
-const TableHead = ({ columns, withAction = false }) => (
+import React from 'react'
+
+type Column = {
+  label: string
+}
+
+type Props = {
+  columns: Column[]
+  withAction?: boolean
+}
+
+const TableHead: React.FC<Props> = ({ columns, withAction = false }) => (
   <thead className="bg-gray-50">
     <tr>
       {columns.map((col, index) => (

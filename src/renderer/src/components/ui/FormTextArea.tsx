@@ -1,4 +1,14 @@
-const FormTextarea = ({ label, name, value, onChange, required = false }) => (
+import React from 'react'
+
+type Props = {
+  label: string
+  name: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  required?: boolean
+}
+
+const FormTextarea: React.FC<Props> = ({ label, name, value, onChange, required = false }) => (
   <div className="space-y-2">
     <label className="block text-sm font-medium text-gray-700">{label}</label>
     <textarea
