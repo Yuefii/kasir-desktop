@@ -2,7 +2,7 @@ import React from 'react'
 
 type Props = {
   label: string
-  onCancel: () => void
+  onCancel?: () => void
 }
 
 const FormAction: React.FC<Props> = ({ label, onCancel }) => {

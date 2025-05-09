@@ -1,13 +1,13 @@
-import TableCell from './TableCell'
-import nestedValue from '@renderer/helper/nested_value'
-import ActionButton from './ActionButton'
 import React from 'react'
+import TableCell from '@renderer/components/ui/TableCell'
+import ActionButton from '@renderer/components/ui/ActionButton'
+import nestedValue from '@renderer/helper/nested_value'
 
 interface Column<T> {
-  key: string
+  label: string
+  key?: string
   render?: (item: T, index: number) => React.ReactNode
 }
-
 interface TableRowProps<T> {
   item: T
   index: number
@@ -27,13 +27,15 @@ const TableRow = <T extends { id: string | number }>({
   onDetail
 }: TableRowProps<T>): React.JSX.Element => (
   <tr className="hover:bg-gray-50">
-    {columns.map((col, i) => (
+    {columns.map((col: Column<T>, i: number) => (
       <TableCell key={i}>
         {typeof col.render === 'function'
           ? col.render(item, index)
           : col.key === 'index'
             ? index + 1
-            : nestedValue(item, col.key)}
+            : col.key
+              ? nestedValue(item, col.key)
+              : null}
       </TableCell>
     ))}
     <TableCell>
