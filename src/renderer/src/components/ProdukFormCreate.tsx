@@ -1,14 +1,19 @@
-import { BASE_URL } from '@renderer/utils/env'
-import { useEffect, useState } from 'react'
-
 import axios from 'axios'
-import FormInput from './ui/FormInput'
-import FormAction from './ui/FormAction'
-import FormOption from './ui/FormOption'
-import FormTextarea from './ui/FormTextArea'
+import React from 'react'
+import * as env from '@renderer/utils/env'
+import * as Type from '@renderer/types/produk_type'
+import FormInput from '@renderer/components/ui/FormInput'
+import FormAction from '@renderer/components/ui/FormAction'
+import FormOption from '@renderer/components/ui/FormOption'
+import FormTextarea from '@renderer/components/ui/FormTextArea'
 
-const ProdukFormCreate = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+interface Props {
+  onSubmit?: (formData: Type.FormData) => void
+  onCancel?: () => void
+}
+
+const ProdukFormCreate: React.FC<Props> = ({ onSubmit, onCancel }) => {
+  const [formData, setFormData] = React.useState<Type.FormData>({
     kode_produk: '',
     nama: '',
     deskripsi: '',
@@ -17,12 +22,11 @@ const ProdukFormCreate = ({ onSubmit, onCancel }) => {
     id_kategori: ''
   })
 
-  const [kategoriList, setKategoriList] = useState<{ id: string; nama: string }[]>([])
-  console.log(kategoriList)
-  useEffect(() => {
+  const [kategoriList, setKategoriList] = React.useState<Type.Kategori[]>([])
+  React.useEffect(() => {
     const fetchKategori = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/kategori`)
+        const res = await axios.get(`${env.BASE_URL}/kategori?pagination=false`)
         setKategoriList(res.data.data)
       } catch (error) {
         console.error('Gagal mengambil data kategori:', error)
@@ -32,18 +36,22 @@ const ProdukFormCreate = ({ onSubmit, onCancel }) => {
     fetchKategori()
   }, [])
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
+  ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    onSubmit(formData)
+    if (onSubmit) onSubmit(formData)
   }
 
   const kategoriOptions = kategoriList.map((kategori) => ({
-    value: kategori.id,
+    value: String(kategori.id),
     label: kategori.nama
   }))
 
@@ -65,6 +73,14 @@ const ProdukFormCreate = ({ onSubmit, onCancel }) => {
         onChange={handleChange}
         type="text"
         required
+      />
+      <FormOption
+        label="Kategori"
+        label_options="Pilih Kategori"
+        name="id_kategori"
+        value={String(formData.id_kategori)}
+        onChange={handleChange}
+        options={kategoriOptions}
       />
       <FormTextarea
         label="Keterangan"
@@ -88,14 +104,6 @@ const ProdukFormCreate = ({ onSubmit, onCancel }) => {
         onChange={handleChange}
         type="text"
         required
-      />
-      <FormOption
-        label="Kategori"
-        label_options="Pilih Kategori"
-        name="id_kategori"
-        value={formData.id_kategori}
-        onChange={handleChange}
-        options={kategoriOptions}
       />
       <FormAction label="Tambah Produk" onCancel={onCancel} />
     </form>

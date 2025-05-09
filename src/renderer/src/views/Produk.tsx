@@ -1,7 +1,7 @@
-import { BASE_URL } from '@renderer/utils/env'
-import { useEffect, useState } from 'react'
-
 import axios from 'axios'
+import React from 'react'
+import * as env from '@renderer/utils/env'
+import * as Type from '@renderer/types/produk_type'
 import Modal from '@renderer/components/Modal'
 import AddButton from '@renderer/components/ui/AddButton'
 import ProdukList from '@renderer/components/ProdukList'
@@ -9,25 +9,13 @@ import Pagination from '@renderer/components/ui/Pagination'
 import ProdukFormUpdate from '@renderer/components/ProdukFormUpdate'
 import ProdukFormCreate from '@renderer/components/ProdukFormCreate'
 
-interface ProdukType {
-  id: number
-  kode_produk: string
-  nama: string
-  deskripsi: string
-  brand: string
-  unit: string
-  id_kategori: number
-  created_at: Date
-  updated_at: Date
-}
-
 const Produk = () => {
-  const [produk, setProduk] = useState<ProdukType[]>([])
-  const [currentProduk, setCurrentProduk] = useState<ProdukType | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [paginationInfo, setPaginationInfo] = useState({
+  const [produk, setProduk] = React.useState<Type.Produk[]>([])
+  const [currentProduk, setCurrentProduk] = React.useState<Type.Produk | null>(null)
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [totalPages, setTotalPages] = React.useState(1)
+  const [paginationInfo, setPaginationInfo] = React.useState({
     total_data: 0,
     data_per_halaman: 0,
     halaman_sekarang: 1
@@ -35,8 +23,8 @@ const Produk = () => {
 
   const fetchProduk = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/produk?limit=5&halaman=${currentPage}`)
-      const data = await res.json()
+      const res = await axios.get(`${env.BASE_URL}/produk?limit=5&halaman=${currentPage}`)
+      const data = await res.data
       setProduk(data.data)
       setTotalPages(data.pagination.total_halaman)
       setPaginationInfo(data.pagination)
@@ -45,7 +33,7 @@ const Produk = () => {
     }
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchProduk()
   }, [currentPage])
 
@@ -54,18 +42,18 @@ const Produk = () => {
     setIsModalOpen(true)
   }
 
-  const handleEdit = (produk: ProdukType) => {
+  const handleEdit = (produk: Type.Produk) => {
     setCurrentProduk(produk)
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: ProdukType) => {
+  const handleDelete = async (id: string | number) => {
     const confirmDelete = window.confirm('Apakah Kamu yakin menghapus produk ini?')
 
     if (!confirmDelete) return
 
     try {
-      await axios.delete(`${BASE_URL}/produk/${id}`)
+      await axios.delete(`${env.BASE_URL}/produk/${id}`)
       fetchProduk()
     } catch (error) {
       console.error('gagal menghapus produk:', error)
@@ -73,14 +61,20 @@ const Produk = () => {
     }
   }
 
-  const handleSubmit = async (newData: ProdukType) => {
+  const handleSubmit = async (newData: Type.FormData) => {
     if (currentProduk) {
       // Update produk
-      const { nama, deskripsi, brand, unit } = newData
-      await axios.patch(`${BASE_URL}/produk/${currentProduk.id}`, { nama, deskripsi, brand, unit })
+      const { nama, id_kategori, deskripsi, brand, unit } = newData
+      await axios.patch(`${env.BASE_URL}/produk/${currentProduk.id}`, {
+        nama,
+        id_kategori,
+        deskripsi,
+        brand,
+        unit
+      })
     } else {
       // Tambah produk
-      await axios.post(`${BASE_URL}/produk`, newData)
+      await axios.post(`${env.BASE_URL}/produk`, newData)
     }
     setIsModalOpen(false)
     fetchProduk()

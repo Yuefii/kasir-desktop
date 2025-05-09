@@ -1,10 +1,23 @@
-import { format } from 'date-fns'
+import React from 'react'
+import * as date from 'date-fns'
+import * as Type from '@renderer/types/produk_type'
+import TableRow from '@renderer/components/ui/TableRow'
+import TableHead from '@renderer/components/ui/TableHead'
 
-import TableRow from './ui/TableRow'
-import TableHead from './ui/TableHead'
+interface Column<T> {
+  label: string
+  key?: string
+  render?: (item: T) => React.ReactNode
+}
 
-const ProdukList = ({ produk, onEdit, onDelete }) => {
-  const columns = [
+interface Props {
+  produk: Type.Produk[]
+  onEdit: (item: Type.Produk) => void
+  onDelete: (id: string | number) => void
+}
+
+const ProdukList: React.FC<Props> = ({ produk, onEdit, onDelete }) => {
+  const columns: Column<Type.Produk>[] = [
     { label: 'No', key: 'index' },
     { label: 'Kode Produk', key: 'kode_produk' },
     { label: 'Nama Produk', key: 'nama' },
@@ -14,11 +27,13 @@ const ProdukList = ({ produk, onEdit, onDelete }) => {
     { label: 'Unit', key: 'unit' },
     {
       label: 'Dibuat Tanggal',
-      render: (item) => format(new Date(item.created_at), 'dd MMM yyyy, HH:mm')
+      render: (item) =>
+        item.created_at ? date.format(new Date(item.created_at), 'dd MMM yyyy, HH:mm') : '-'
     },
     {
       label: 'Diubah Tanggal',
-      render: (item) => format(new Date(item.created_at), 'dd MMM yyyy, HH:mm')
+      render: (item) =>
+        item.updated_at ? date.format(new Date(item.updated_at), 'dd MMM yyyy, HH:mm') : '-'
     }
   ]
 
@@ -34,6 +49,7 @@ const ProdukList = ({ produk, onEdit, onDelete }) => {
                   key={item.id}
                   item={item}
                   index={index}
+                  actions={['edit', 'delete']}
                   columns={columns}
                   onEdit={onEdit}
                   onDelete={onDelete}
