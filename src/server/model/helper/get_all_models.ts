@@ -11,10 +11,27 @@ import { definePembelianItem } from '../define/define_pembelian_item'
 import { defineProduk } from '../define/define_produk'
 import { defineSupplier } from '../define/define_supplier'
 
-let cachedSQLiteModels: any = null
-let cachedMySQLModels: any = null
+type SQLiteModels = {
+  cabang: ReturnType<typeof defineCabang>
+  kategori: ReturnType<typeof defineKategori>
+  produk: ReturnType<typeof defineProduk>
+  harga_produk: ReturnType<typeof defineHargaProduk>
+  inventori: ReturnType<typeof defineInventori>
+  supplier: ReturnType<typeof defineSupplier>
+  pegawai: ReturnType<typeof definePegawai>
+  pembelian: ReturnType<typeof definePembelian>
+  pembelian_item: ReturnType<typeof definePembelianItem>
+}
 
-export async function getAllModels() {
+type AllModels = {
+  sqliteModels: SQLiteModels
+  mysqlModels: SQLiteModels
+}
+
+let cachedSQLiteModels: SQLiteModels | null = null
+let cachedMySQLModels: SQLiteModels | null = null
+
+export async function getAllModels(): Promise<AllModels> {
   if (!cachedSQLiteModels) {
     cachedSQLiteModels = {
       cabang: defineCabang(sqlite),
