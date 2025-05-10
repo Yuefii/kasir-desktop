@@ -1,53 +1,28 @@
-import { BASE_URL } from '@renderer/utils/env'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
+import React from 'react'
+import * as Type from '@renderer/types/inventori_type'
+import FormAction from '@renderer/components/ui/FormAction'
+import FormInput from '@renderer/components/ui/FormInput'
 
-const InventoriFormUpdate = ({ inventori, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({ ...inventori })
+interface Props {
+  initialValues: Type.InventoriFormValues & { id: string | number }
+  onSubmit: (formData: Type.InventoriFormValues) => void
+  onCancel: () => void
+}
 
-  interface Cabang {
-    id: number
-    nama: string
-  }
-  interface Produk {
-    id: number
-    nama: string
-  }
+const InventoriFormUpdate: React.FC<Props> = ({ initialValues, onSubmit, onCancel }) => {
+  const [formData, setFormData] = React.useState<Type.InventoriFormValues>({
+    stok_minimal: initialValues.stok_minimal
+  })
 
-  const [cabangList, setCabangList] = useState<Cabang[]>([])
-  const [produkList, setProdukList] = useState<Produk[]>([])
-
-  useEffect(() => {
-    if (inventori) setFormData(inventori)
-
-    const fetchCabang = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/cabang`)
-        setCabangList(res.data.data)
-      } catch (error) {
-        console.error('Gagal memuat data cabang:', error)
-      }
-    }
-
-    const fetchProduk = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/produk`)
-        setProdukList(res.data.data)
-      } catch (error) {
-        console.error('Gagal memuat data produk:', error)
-      }
-    }
-
-    fetchProduk()
-    fetchCabang()
-  }, [inventori])
-
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({
+      ...prev,
+      [name]: Number(value) || 0
+    }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     onSubmit(formData)
   }
@@ -55,67 +30,15 @@ const InventoriFormUpdate = ({ inventori, onSubmit, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800">Edit Inventori</h2>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Stok Minimal</label>
-        <input
-          type="text"
-          name="stok_minimal"
-          value={formData.stok_minimal}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Cabang</label>
-        <select
-          name="id_cabang"
-          value={formData.id_cabang}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded"
-          required
-        >
-          <option value="">-- Pilih Cabang --</option>
-          {cabangList.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.nama}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Produk</label>
-        <select
-          name="id_produk"
-          value={formData.id_produk}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded"
-          required
-        >
-          <option value="">-- Pilih Produk --</option>
-          {produkList.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.nama}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex justify-end space-x-3 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 border rounded text-gray-700 bg-white"
-        >
-          Batal
-        </button>
-        <button type="submit" className="px-4 py-2 text-white bg-black rounded">
-          Tambah Cabang
-        </button>
-      </div>
+      <FormInput
+        label="Stok Minimal"
+        name="stok_minimal"
+        value={formData.stok_minimal.toString()}
+        onChange={handleChange}
+        type="number"
+        required
+      />
+      <FormAction label="Ubah Inventori" onCancel={onCancel} />
     </form>
   )
 }
