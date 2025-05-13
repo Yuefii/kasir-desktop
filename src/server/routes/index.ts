@@ -42,6 +42,8 @@ router.patch('/pegawai/:id', PegawaiController.update)
 router.delete('/pegawai/:id', PegawaiController.softDelete)
 
 router.get('/harga-produk', HargaProdukController.getAll)
+router.get('/harga-produk/export', HargaProdukController.exportCSV)
+
 router.get('/pembelian', PembelianController.getAll)
 router.post('/pembelian', PembelianController.create)
 
