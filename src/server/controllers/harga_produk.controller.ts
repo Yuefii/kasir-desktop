@@ -1,4 +1,4 @@
-import { Model } from 'sequelize'
+import { Model, Op } from 'sequelize'
 import { models } from '@server/model'
 import { Request, Response } from 'express'
 
@@ -15,6 +15,9 @@ export class HargaProdukController {
       const allowSortFields = ['harga', 'mulai_berlaku', 'created_at', 'updated_at']
       const sortField = allowSortFields.includes(sortBy) ? sortBy : 'created_at'
 
+      const searchQuery = (req.query.pencarian as string)?.toLowerCase() || ''
+      const isSearching = searchQuery.length > 0
+
       let data: Model[]
       let count: number
 
@@ -29,7 +32,14 @@ export class HargaProdukController {
           include: [
             {
               association: 'produk',
-              attributes: ['id', 'nama']
+              attributes: ['id', 'nama'],
+              where: isSearching
+                ? {
+                    nama: {
+                      [Op.like]: `%${searchQuery}%`
+                    }
+                  }
+                : undefined
             },
             {
               association: 'cabang',
@@ -54,7 +64,14 @@ export class HargaProdukController {
           include: [
             {
               association: 'produk',
-              attributes: ['id', 'nama']
+              attributes: ['id', 'nama'],
+              where: isSearching
+                ? {
+                    nama: {
+                      [Op.like]: `%${searchQuery}%`
+                    }
+                  }
+                : undefined
             },
             {
               association: 'cabang',
