@@ -3,6 +3,7 @@ import React from 'react'
 import * as env from '@renderer/utils/env'
 import Pagination from '@renderer/components/ui/Pagination'
 import SearchInput from '@renderer/components/ui/SearchInput'
+import ExportButton from '@renderer/components/ui/ExportButton'
 import SortDropdown from '@renderer/components/ui/SortDropdown'
 import HargaProdukList from '@renderer/components/HargaProdukList'
 
@@ -72,6 +73,17 @@ const HargaProduk = () => {
           fetchHargaProduk()
         }}
       />
+      <div className="flex justify-end items-center mb-4">
+        <ExportButton
+          exportUrl={`${env.BASE_URL}/harga-produk/export`}
+          fileName="Data Harga Produk"
+          query={{
+            urut_berdasarkan: sortBy,
+            urutan: sortOrder,
+            pencarian: searchQuery
+          }}
+        />
+      </div>
       <HargaProdukList hargaProduk={hargaProduk} />
       <Pagination
         currentPage={currentPage}
