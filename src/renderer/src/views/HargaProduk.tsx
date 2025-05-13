@@ -52,6 +52,8 @@ const HargaProduk = () => {
 
   const hargaProdukSortOptions = [
     { label: 'Harga', value: 'harga' },
+    { label: 'Nama Produk', value: 'produk' },
+    { label: 'Nama Cabang', value: 'cabang' },
     { label: 'Tanggal Berlaku', value: 'mulai_berlaku' },
     { label: 'Tanggal Dibuat', value: 'created_at' },
     { label: 'Tanggal Diubah', value: 'updated_at' }
