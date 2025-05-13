@@ -9,6 +9,12 @@ export class HargaProdukController {
       const paginationQuery = req.query.pagination
       const isPaginationDisabled = paginationQuery === 'false'
 
+      const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
+      const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+
+      const allowSortFields = ['harga', 'mulai_berlaku', 'created_at', 'updated_at']
+      const sortField = allowSortFields.includes(sortBy) ? sortBy : 'created_at'
+
       let data: Model[]
       let count: number
 
@@ -29,7 +35,8 @@ export class HargaProdukController {
               association: 'cabang',
               attributes: ['id', 'nama']
             }
-          ]
+          ],
+          order: [[sortField, sortOrder]]
         })
         count = data.length
       } else {
@@ -54,6 +61,7 @@ export class HargaProdukController {
               attributes: ['id', 'nama']
             }
           ],
+          order: [[sortField, sortOrder]],
           limit,
           offset
         })
