@@ -2,6 +2,7 @@ import axios from 'axios'
 import React from 'react'
 import * as env from '@renderer/utils/env'
 import Pagination from '@renderer/components/ui/Pagination'
+import SearchInput from '@renderer/components/ui/SearchInput'
 import SortDropdown from '@renderer/components/ui/SortDropdown'
 import HargaProdukList from '@renderer/components/HargaProdukList'
 
@@ -11,6 +12,7 @@ const HargaProduk = () => {
   const [totalPages, setTotalPages] = React.useState(1)
   const [sortBy, setSortBy] = React.useState('created_at')
   const [sortOrder, setSortOrder] = React.useState('desc')
+  const [searchQuery, setSearchQuery] = React.useState('')
   const [paginationInfo, setPaginationInfo] = React.useState({
     total_data: 0,
     data_per_halaman: 0,
@@ -20,7 +22,7 @@ const HargaProduk = () => {
   const fetchHargaProduk = async () => {
     try {
       const res = await axios.get(
-        `${env.BASE_URL}/harga-produk?limit=5&halaman=${currentPage}&urut_berdasarkan=${sortBy}&urutan=${sortOrder}`
+        `${env.BASE_URL}/harga-produk?limit=5&halaman=${currentPage}&urut_berdasarkan=${sortBy}&urutan=${sortOrder}&pencarian=${encodeURIComponent(searchQuery)}`
       )
       const data = await res.data
       setHargaProduk(data.data)
@@ -34,6 +36,12 @@ const HargaProduk = () => {
   React.useEffect(() => {
     fetchHargaProduk()
   }, [currentPage, sortBy, sortOrder])
+
+  React.useEffect(() => {
+    if (searchQuery === '') {
+      fetchHargaProduk()
+    }
+  }, [searchQuery])
 
   const handleSortChange = (newSortBy: string, newSortOrder: string) => {
     setSortBy(newSortBy)
@@ -56,6 +64,13 @@ const HargaProduk = () => {
         sortOrder={sortOrder}
         options={hargaProdukSortOptions}
         onSortChange={handleSortChange}
+      />
+      <SearchInput
+        value={searchQuery}
+        onChange={(value) => setSearchQuery(value)}
+        onSubmit={() => {
+          fetchHargaProduk()
+        }}
       />
       <HargaProdukList hargaProduk={hargaProduk} />
       <Pagination
