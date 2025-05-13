@@ -16,14 +16,25 @@ export class HargaProdukController {
       const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
       const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
 
-      const allowSortFields = ['harga', 'mulai_berlaku', 'created_at', 'updated_at']
-      const sortField = allowSortFields.includes(sortBy) ? sortBy : 'created_at'
+      const directSortFields = ['harga', 'mulai_berlaku', 'created_at', 'updated_at']
+      const relationalSortMap: Record<string, { model: any; as: string; field: string }> = {
+        produk: { model: models.Produk, as: 'produk', field: 'nama' },
+        cabang: { model: models.Cabang, as: 'cabang', field: 'nama' }
+      }
 
       const searchQuery = (req.query.pencarian as string)?.toLowerCase() || ''
       const isSearching = searchQuery.length > 0
 
       let data: Model[]
       let count: number
+      let order: any = [['created_at', sortOrder]]
+
+      if (directSortFields.includes(sortBy)) {
+        order = [[sortBy, sortOrder]]
+      } else if (relationalSortMap[sortBy]) {
+        const rel = relationalSortMap[sortBy]
+        order = [[{ model: rel.model, as: rel.as }, rel.field, sortOrder]]
+      }
 
       if (isPaginationDisabled) {
         data = await HargaProduk.findAll({
@@ -50,7 +61,7 @@ export class HargaProdukController {
               attributes: ['id', 'nama']
             }
           ],
-          order: [[sortField, sortOrder]]
+          order
         })
         count = data.length
       } else {
@@ -82,7 +93,7 @@ export class HargaProdukController {
               attributes: ['id', 'nama']
             }
           ],
-          order: [[sortField, sortOrder]],
+          order,
           limit,
           offset
         })
@@ -115,11 +126,24 @@ export class HargaProdukController {
 
       const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
       const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
-      const allowSortFields = ['harga', 'mulai_berlaku', 'created_at', 'updated_at']
-      const sortField = allowSortFields.includes(sortBy) ? sortBy : 'created_at'
+
+      const directSortFields = ['harga', 'mulai_berlaku', 'created_at', 'updated_at']
+      const relationalSortMap: Record<string, { model: any; as: string; field: string }> = {
+        produk: { model: models.Produk, as: 'produk', field: 'nama' },
+        cabang: { model: models.Cabang, as: 'cabang', field: 'nama' }
+      }
 
       const searchQuery = (req.query.pencarian as string)?.toLowerCase() || ''
       const isSearching = searchQuery.length > 0
+
+      let order: any = [['created_at', sortOrder]]
+
+      if (directSortFields.includes(sortBy)) {
+        order = [[sortBy, sortOrder]]
+      } else if (relationalSortMap[sortBy]) {
+        const rel = relationalSortMap[sortBy]
+        order = [[{ model: rel.model, as: rel.as }, rel.field, sortOrder]]
+      }
 
       const data = await HargaProduk.findAll({
         where: {
@@ -145,7 +169,7 @@ export class HargaProdukController {
             attributes: ['id', 'nama']
           }
         ],
-        order: [[sortField, sortOrder]]
+        order
       })
 
       const plainData = data.map((item: any) => {
