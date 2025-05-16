@@ -3,6 +3,9 @@ export function getSortOrderLabel(sortBy: string, sortOrder: string): string {
   switch (sortBy) {
     case 'harga':
       return isAsc ? 'Termurah → Termahal' : 'Termahal → Termurah'
+    case 'stok_minimal':
+    case 'jumlah_stok':
+      return isAsc ? 'Paling Sedikit → Paling Banyak' : 'Paling Banyak → Paling Sedikit'
     case 'cabang':
       return isAsc ? 'A → Z (Nama Cabang)' : 'Z → A (Nama Cabang)'
     case 'produk':

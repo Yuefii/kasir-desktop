@@ -6,6 +6,7 @@ import SearchInput from '@renderer/components/ui/SearchInput'
 import ExportButton from '@renderer/components/ui/ExportButton'
 import SortDropdown from '@renderer/components/ui/SortDropdown'
 import HargaProdukList from '@renderer/components/HargaProdukList'
+import CabangFilter from '@renderer/components/ui/FilterCabang'
 
 const HargaProduk = () => {
   const [hargaProduk, setHargaProduk] = React.useState([])
@@ -14,6 +15,7 @@ const HargaProduk = () => {
   const [sortBy, setSortBy] = React.useState('created_at')
   const [sortOrder, setSortOrder] = React.useState('desc')
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [selectedCabangId, setSelectedCabangId] = React.useState<number | null>(null)
   const [paginationInfo, setPaginationInfo] = React.useState({
     total_data: 0,
     data_per_halaman: 0,
@@ -22,8 +24,9 @@ const HargaProduk = () => {
 
   const fetchHargaProduk = async () => {
     try {
+      const params = selectedCabangId ? `&cabang=${selectedCabangId}` : ''
       const res = await axios.get(
-        `${env.BASE_URL}/harga-produk?limit=5&halaman=${currentPage}&urut_berdasarkan=${sortBy}&urutan=${sortOrder}&pencarian=${encodeURIComponent(searchQuery)}`
+        `${env.BASE_URL}/harga-produk?limit=5&halaman=${currentPage}&urut_berdasarkan=${sortBy}&urutan=${sortOrder}&pencarian=${encodeURIComponent(searchQuery)}${params}`
       )
       const data = await res.data
       setHargaProduk(data.data)
@@ -36,7 +39,7 @@ const HargaProduk = () => {
 
   React.useEffect(() => {
     fetchHargaProduk()
-  }, [currentPage, sortBy, sortOrder])
+  }, [currentPage, sortBy, sortOrder, selectedCabangId])
 
   React.useEffect(() => {
     if (searchQuery === '') {
@@ -62,20 +65,27 @@ const HargaProduk = () => {
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <h1 className="text-3xl font-bold text-black mb-6">Data Harga Produk</h1>
+      <CabangFilter
+        selectedCabang={selectedCabangId}
+        onChange={(id) => {
+          setSelectedCabangId(id)
+          setCurrentPage(1)
+        }}
+      />
       <SortDropdown
         sortBy={sortBy}
         sortOrder={sortOrder}
         options={hargaProdukSortOptions}
         onSortChange={handleSortChange}
       />
-      <SearchInput
-        value={searchQuery}
-        onChange={(value) => setSearchQuery(value)}
-        onSubmit={() => {
-          fetchHargaProduk()
-        }}
-      />
-      <div className="flex justify-end items-center mb-4">
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <SearchInput
+          value={searchQuery}
+          onChange={(value) => setSearchQuery(value)}
+          onSubmit={() => {
+            fetchHargaProduk()
+          }}
+        />
         <ExportButton
           exportUrl={`${env.BASE_URL}/harga-produk/export`}
           fileName="Data Harga Produk"
