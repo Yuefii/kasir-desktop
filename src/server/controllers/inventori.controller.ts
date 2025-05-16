@@ -1,45 +1,132 @@
+import { models } from '@server/model'
+import { getMode } from '@server/database/conn'
+import { Model, Op } from 'sequelize'
 import { Request, Response } from 'express'
-import { getMode } from '../database/conn'
-import { models } from '../model'
-import { InventoriInterface } from '../dto/inventori'
+import { InventoriInterface } from '@server/dto/inventori'
 
 export class InventoriController {
   static async getAll(req: Request, res: Response) {
     try {
       const Inventori = models.Inventori
+      const paginationQuery = req.query.pagination
+      const isPaginationDisabled = paginationQuery === 'false'
 
-      const halaman = parseInt(req.query.halaman as string) || 1
-      const limit = parseInt(req.query.limit as string) || 5
-      const offset = (halaman - 1) * limit
+      const idCabang = req.query.cabang ? parseInt(req.query.cabang as string) : undefined
 
-      const { count, rows } = await Inventori.findAndCountAll({
-        limit,
-        offset,
-        where: {
-          is_aktif: true
-        },
-        attributes: {
-          exclude: ['id_produk', 'id_cabang']
-        },
-        include: [
-          {
-            association: 'cabang',
-            attributes: ['id', 'nama']
-          },
-          {
-            association: 'produk',
-            attributes: ['id', 'nama']
-          }
+      const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
+      const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+
+      const directSortFields = ['jumlah_stok', 'stok_minimal', 'created_at', 'updated_at']
+      const relationalSortMap: Record<string, { model: any; as: string; field: string }> = {
+        produk: { model: models.Produk, as: 'produk', field: 'nama' },
+        cabang: { model: models.Cabang, as: 'cabang', field: 'nama' }
+      }
+
+      const searchQuery = (req.query.pencarian as string)?.toLowerCase() || ''
+      const isSearching = searchQuery.length > 0
+
+      let data: Model[]
+      let count: number
+      let order: any = [['created_at', sortOrder]]
+
+      if (directSortFields.includes(sortBy)) {
+        order = [[sortBy, sortOrder]]
+      } else if (relationalSortMap[sortBy]) {
+        const rel = relationalSortMap[sortBy]
+        order = [
+          [
+            {
+              model: rel.model,
+              as: rel.as
+            },
+            rel.field,
+            sortOrder
+          ]
         ]
-      })
+      }
+
+      const whereClause: any = {
+        is_aktif: true
+      }
+
+      if (idCabang) {
+        whereClause.id_cabang = idCabang
+      }
+
+      if (isPaginationDisabled) {
+        data = await Inventori.findAll({
+          where: whereClause,
+          attributes: {
+            exclude: ['id_produk', 'id_cabang']
+          },
+          include: [
+            {
+              association: 'produk',
+              attributes: ['id', 'nama'],
+              where: isSearching
+                ? {
+                    nama: {
+                      [Op.like]: `%${searchQuery}%`
+                    }
+                  }
+                : undefined
+            },
+            {
+              association: 'cabang',
+              attributes: ['id', 'nama']
+            }
+          ],
+          order
+        })
+        count = data.length
+      } else {
+        const halaman = parseInt(req.query.halaman as string) || 1
+        const limit = parseInt(req.query.limit as string) || 5
+        const offset = (halaman - 1) * limit
+
+        const result = await Inventori.findAndCountAll({
+          where: whereClause,
+          attributes: {
+            exclude: ['id_produk', 'id_cabang']
+          },
+          include: [
+            {
+              association: 'produk',
+              attributes: ['id', 'nama'],
+              where: isSearching
+                ? {
+                    nama: {
+                      [Op.like]: `%${searchQuery}%`
+                    }
+                  }
+                : undefined
+            },
+            {
+              association: 'cabang',
+              attributes: ['id', 'nama']
+            }
+          ],
+          order,
+          limit,
+          offset
+        })
+
+        data = result.rows
+        count = result.count
+        res.status(200).json({
+          pagination: {
+            total_data: count,
+            halaman_sekarang: halaman,
+            data_per_halaman: limit,
+            total_halaman: Math.ceil(count / limit)
+          },
+          data
+        })
+      }
+
       res.status(200).json({
-        pagination: {
-          total_data: count,
-          halaman_sekarang: halaman,
-          data_per_halaman: limit,
-          total_halaman: Math.ceil(count / limit)
-        },
-        data: rows
+        pagination: false,
+        data
       })
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error', error })
