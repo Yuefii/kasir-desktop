@@ -13,6 +13,8 @@ export class HargaProdukController {
       const paginationQuery = req.query.pagination
       const isPaginationDisabled = paginationQuery === 'false'
 
+      const idCabang = req.query.cabang ? parseInt(req.query.cabang as string) : undefined
+
       const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
       const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
 
@@ -36,11 +38,17 @@ export class HargaProdukController {
         order = [[{ model: rel.model, as: rel.as }, rel.field, sortOrder]]
       }
 
+      const whereClause: any = {
+        is_aktif: true
+      }
+
+      if (idCabang) {
+        whereClause.id_cabang = idCabang
+      }
+
       if (isPaginationDisabled) {
         data = await HargaProduk.findAll({
-          where: {
-            is_aktif: true
-          },
+          where: whereClause,
           attributes: {
             exclude: ['id_cabang', 'id_produk']
           },
@@ -70,9 +78,7 @@ export class HargaProdukController {
         const offset = (halaman - 1) * limit
 
         const result = await HargaProduk.findAndCountAll({
-          where: {
-            is_aktif: true
-          },
+          where: whereClause,
           attributes: {
             exclude: ['id_cabang', 'id_produk']
           },
@@ -123,7 +129,7 @@ export class HargaProdukController {
   static async exportCSV(req: Request, res: Response) {
     try {
       const HargaProduk = models.HargaProduk
-
+      const idCabang = req.query.cabang ? parseInt(req.query.cabang as string) : undefined
       const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
       const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
 
@@ -145,10 +151,16 @@ export class HargaProdukController {
         order = [[{ model: rel.model, as: rel.as }, rel.field, sortOrder]]
       }
 
+      const whereClause: any = {
+        is_aktif: true
+      }
+
+      if (idCabang) {
+        whereClause.id_cabang = idCabang
+      }
+
       const data = await HargaProduk.findAll({
-        where: {
-          is_aktif: true
-        },
+        where: whereClause,
         attributes: {
           exclude: ['id_cabang', 'id_produk']
         },
