@@ -13,13 +13,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, onSubmit }) 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
+    <form onSubmit={handleSubmit} className="w-1/2 flex gap-2">
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Cari berdasarkan nama produk..."
-        className="border border-gray-300 text-sm px-4 py-1.5 rounded w-full max-w-md"
+        className="border border-gray-300 text-sm px-4 py-1.5 rounded w-full"
       />
       <button
         type="submit"

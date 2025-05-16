@@ -2,6 +2,7 @@ import * as date from 'date-fns'
 import * as Type from '@renderer/types/harga_produk_type'
 import TableRow from './ui/TableRow'
 import TableHead from './ui/TableHead'
+import { formatRupiah } from '@shared/helper/format_rupiah'
 
 interface Column<T> {
   label: string
@@ -20,7 +21,10 @@ const HargaProdukList: React.FC<Props> = ({ hargaProduk }) => {
       label: 'Nama Produk',
       render: (item) => item.produk.nama
     },
-    { label: 'Harga Produk', key: 'harga' },
+    {
+      label: 'Harga Produk',
+      render: (item) => formatRupiah(item.harga)
+    },
     {
       label: 'Nama Cabang',
       render: (item) => item.cabang.nama
