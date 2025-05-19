@@ -111,12 +111,13 @@ const Inventori: React.FC = () => {
           }}
         />
         <ExportButton
-          exportUrl={`${env.BASE_URL}/harga-produk/export`}
-          fileName="Data Harga Produk"
+          exportUrl={`${env.BASE_URL}/inventori/export`}
+          fileName="Data Inventori"
           query={{
             urut_berdasarkan: sortBy,
             urutan: sortOrder,
-            pencarian: searchQuery
+            pencarian: searchQuery,
+            cabang: selectedCabangId?.toString() || ''
           }}
         />
       </div>

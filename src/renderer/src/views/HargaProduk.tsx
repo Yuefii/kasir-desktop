@@ -92,7 +92,8 @@ const HargaProduk = () => {
           query={{
             urut_berdasarkan: sortBy,
             urutan: sortOrder,
-            pencarian: searchQuery
+            pencarian: searchQuery,
+            cabang: selectedCabangId?.toString() || ''
           }}
         />
       </div>
