@@ -3,6 +3,9 @@ import { getMode } from '@server/database/conn'
 import { Model, Op } from 'sequelize'
 import { Request, Response } from 'express'
 import { InventoriInterface } from '@server/dto/inventori'
+import { formatDateTime } from '@shared/helper/format_date'
+import { Parser } from 'json2csv'
+import { format } from 'date-fns'
 
 export class InventoriController {
   static async getAll(req: Request, res: Response) {
@@ -130,6 +133,89 @@ export class InventoriController {
       })
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error', error })
+    }
+  }
+
+  static async exportCSV(req: Request, res: Response) {
+    try {
+      const Inventori = models.Inventori
+      const idCabang = req.query.cabang ? parseInt(req.query.cabang as string) : undefined
+      const sortBy = (req.query.urut_berdasarkan as string) || 'created_at'
+      const sortOrder = (req.query.urutan as string)?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+
+      const directSortFields = ['jumlah_stok', 'stok_minimal', 'created_at', 'updated_at']
+      const relationalSortMap: Record<string, { model: any; as: string; field: string }> = {
+        produk: { model: models.Produk, as: 'produk', field: 'nama' },
+        cabang: { model: models.Cabang, as: 'cabang', field: 'nama' }
+      }
+
+      const searchQuery = (req.query.pencarian as string)?.toLowerCase() || ''
+      const isSearching = searchQuery.length > 0
+
+      let order: any = [['created_at', sortOrder]]
+
+      if (directSortFields.includes(sortBy)) {
+        order = [[sortBy, sortOrder]]
+      } else if (relationalSortMap[sortBy]) {
+        const rel = relationalSortMap[sortBy]
+        order = [[{ model: rel.model, as: rel.as }, rel.field, sortOrder]]
+      }
+
+      const whereClause: any = {
+        is_aktif: true
+      }
+
+      if (idCabang) {
+        whereClause.id_cabang = idCabang
+      }
+
+      const data = await Inventori.findAll({
+        where: whereClause,
+        attributes: {
+          exclude: ['id_cabang', 'id_produk']
+        },
+        include: [
+          {
+            association: 'produk',
+            attributes: ['id', 'nama'],
+            where: isSearching
+              ? {
+                  nama: {
+                    [Op.like]: `%${searchQuery}%`
+                  }
+                }
+              : undefined
+          },
+          {
+            association: 'cabang',
+            attributes: ['id', 'nama']
+          }
+        ],
+        order
+      })
+
+      const plainData = data.map((item: any) => {
+        return {
+          'Jumlah Stok': item.jumlah_stok,
+          'Stok Minimal': item.stok_minimal,
+          'Nama Produk': item.produk?.nama || '',
+          'Nama Cabang': item.cabang?.nama || '',
+          'Dibuat Pada': item.created_at ? formatDateTime(item.created_at) : '',
+          'Diubah Pada': item.updated_at ? formatDateTime(item.updated_at) : ''
+        }
+      })
+
+      const json2csv = new Parser()
+      const csv = json2csv.parse(plainData)
+      const today = format(new Date(), 'dd-MM-yyyy')
+      const fileName = `data-inventori-${today}.csv`
+
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`)
+      res.setHeader('Content-Type', 'text/csv')
+      res.status(200).send(csv)
+    } catch (error) {
+      console.error('Gagal export CSV:', error)
+      res.status(500).json({ message: 'Gagal export data', error })
     }
   }
 

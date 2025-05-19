@@ -27,6 +27,7 @@ router.patch('/produk/:id', ProdukController.update)
 router.delete('/produk/:id', ProdukController.softDelete)
 
 router.get('/inventori', InventoriController.getAll)
+router.get('/inventori/export', InventoriController.exportCSV)
 router.post('/inventori', InventoriController.create)
 router.patch('/inventori/:id', InventoriController.update)
 router.delete('/inventori/:id', InventoriController.softDelete)
